@@ -47,8 +47,10 @@ render_git_branch() {
         return 0
     fi
 
-    # Add git branch info with dim leaf emoji and bright text
-    echo "${CONFIG_DIM}🌿${CONFIG_RESET}  ${CONFIG_GREEN}(${COMPONENT_GIT_BRANCH_NAME})${CONFIG_RESET}"
+    # Add git branch info with dim leafless tree emoji and brown text
+    local branch_color
+    branch_color=$(printf '\033[38;2;127;86;50m')  # #7F5632
+    echo "${CONFIG_DIM}🌳${CONFIG_RESET}  ${branch_color}(${COMPONENT_GIT_BRANCH_NAME})${CONFIG_RESET}"
     return 0
 }
 

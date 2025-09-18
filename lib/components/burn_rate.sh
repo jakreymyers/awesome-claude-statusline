@@ -22,7 +22,7 @@ collect_burn_rate_data() {
     debug_log "Collecting burn_rate component data" "INFO"
     
     COMPONENT_BURN_RATE_INFO="$CONFIG_NO_CCUSAGE_MESSAGE"
-    
+
     if is_module_loaded "cost" && is_ccusage_available; then
         # Get unified metrics from single ccusage call (cached 30s)
         local metrics

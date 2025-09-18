@@ -205,6 +205,39 @@ format_cost_usage() {
     echo "${CONFIG_DIM}💰 ${CONFIG_RESET}${monthly_part} ${weekly_part} ${daily_part} "
 }
 
+# Format context usage display
+format_context_usage() {
+    local percentage="$1"
+    local input_tokens="$2"
+    local cache_creation_tokens="$3"
+    local cache_read_tokens="$4"
+    local output_tokens="$5"
+    local total_tokens="$6"
+    local limit="$7"
+
+    # Color based on usage percentage
+    local context_color percentage_int
+    percentage_int=$(echo "$percentage" | cut -d. -f1)
+
+    if [[ $percentage_int -ge 80 ]]; then
+        context_color=$(printf '\033[38;2;255;96;96m')  # Red - needs /compact soon
+    elif [[ $percentage_int -ge 60 ]]; then
+        context_color=$(printf '\033[38;2;255;165;0m')  # Orange - getting full
+    else
+        context_color=$(printf '\033[38;2;0;200;0m')    # Green - plenty of space
+    fi
+
+    # Format tokens with comma separators for readability
+    local formatted_total formatted_limit
+    formatted_total=$(printf "%'d" "$total_tokens" 2>/dev/null || echo "$total_tokens")
+    formatted_limit=$(printf "%'d" "$limit" 2>/dev/null || echo "$limit")
+
+    # For now, display the total (5th element) as requested
+    # Individual token types available for future detailed display:
+    # I:$input_tokens CC:$cache_creation_tokens CR:$cache_read_tokens O:$output_tokens
+    echo "${CONFIG_DIM}🧠 ${CONFIG_RESET}${context_color}${percentage}% (${formatted_total}/${formatted_limit})${CONFIG_RESET}"
+}
+
 # ============================================================================
 # MCP FORMATTING
 # ============================================================================
@@ -725,7 +758,7 @@ init_display_module
 export -f format_directory_path get_model_emoji format_model_name
 export -f format_git_branch format_git_status_emoji format_git_info
 export -f format_cost_value format_session_cost format_monthly_cost format_weekly_cost
-export -f format_daily_cost format_live_block_cost format_cost_usage get_mcp_status_format format_mcp_server_list
+export -f format_daily_cost format_live_block_cost format_cost_usage format_context_usage get_mcp_status_format format_mcp_server_list
 export -f format_claude_version format_submodule_display format_current_time format_separator
 export -f build_line1 build_line2 build_line3 build_line4 build_complete_statusline
 export -f get_line_config build_modular_statusline use_modular_display build_statusline

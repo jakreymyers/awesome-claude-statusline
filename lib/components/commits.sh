@@ -51,9 +51,11 @@ render_commits() {
         return 0
     fi
     
-    # Build commits display with dim ballot box emoji and bright text
+    # Build commits display with dim check mark emoji and green text
     # Always show time since last commit, regardless of today's count
-    local commits_display="${CONFIG_DIM}☑️${CONFIG_RESET}  ${COMPONENT_COMMITS_COUNT} (${COMPONENT_COMMITS_LAST_TIME})"
+    local commits_color
+    commits_color=$(printf '\033[38;2;78;182;80m')  # #4EB650
+    local commits_display="${CONFIG_DIM}✅${CONFIG_RESET}  ${commits_color}${COMPONENT_COMMITS_COUNT} (${COMPONENT_COMMITS_LAST_TIME})${CONFIG_RESET}"
 
     echo "$commits_display"
     return 0
