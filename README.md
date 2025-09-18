@@ -1,36 +1,107 @@
-# Claude Code Statusline System
+# 🎨 Awesome Claude Statusline
 
-A comprehensive, modular statusline system for Claude Code that provides real-time information about development environment status, costs, git repositories, and more.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub stars](https://img.shields.io/github/stars/jakreymyers/awesome-claude-statusline?style=social)](https://github.com/jakreymyers/awesome-claude-statusline/stargazers)
+
+> 🚀 **Transform your Claude Code experience with intelligent cost tracking, real-time context monitoring, and beautiful themes**
+
+A comprehensive, modular statusline system that provides essential workflow information at a glance. Built for developers who want deep insights into their Claude Code usage with visual excellence and complete customization control.
+
+```
+🗂️  ~/.claude/statusline • 🌳 (main) • ✅ 15 (2m ago) • 👾 v1.0.117
+🤖 Claude • 🧠 55% (109k/200k) • ⚙️ MCP: 2 (active)
+💰 M:$462.43 W:$151.64 D:$36.80 • 🔥 205k/min ($6.66/hr) • ⏰ RESET at 18:00
+```
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [System Architecture](#system-architecture)
-- [Component System](#component-system)
-- [Configuration](#configuration)
-- [Visual Design System](#visual-design-system)
-- [File Dependencies](#file-dependencies)
-- [Development Guide](#development-guide)
-- [Troubleshooting](#troubleshooting)
+**Getting Started**
+- [🚀 Quick Start](#-quick-start)
+- [✨ Key Features](#-key-features)
+- [🎯 What You Get](#-what-you-get)
 
-## Overview
+**Understanding the System**
+- [🏗️ How It Works](#️-how-it-works)
+- [📊 Component Reference](#-component-reference)
+- [🎨 Visual Design](#-visual-design)
 
-The Claude Code Statusline provides a rich, configurable status display that shows:
-- 📁 Repository and directory information
-- 🌿 Git branch status and commit activity
-- 🤖 Claude model and version information
-- 💰 Cost tracking and burn rates
-- 🔥 MCP server status
-- ⚡ Performance metrics and cache efficiency
+**Customization & Advanced Usage**
+- [🎛️ Configuration Guide](#️-configuration-guide)
+- [🎨 Themes & Personalization](#-themes--personalization)
+- [🔧 Building Your Own Components](#-building-your-own-components)
+- [⚡ Performance & Caching](#-performance--caching)
 
-### Key Features
+**Development & Contribution**
+- [💡 Ideas & Enhancement Guide](#-ideas--enhancement-guide)
+- [🐛 Troubleshooting](#-troubleshooting)
+- [🤝 Contributing](#-contributing)
 
-- **Modular Architecture**: Each component is self-contained and independently configurable
-- **Visual Design System**: Consistent emoji usage with configurable opacity and colors
-- **Smart Caching**: Intelligent caching system with project-aware isolation
-- **Multi-line Display**: Up to 9 configurable display lines
-- **Theme Support**: Built-in themes (classic, garden, catppuccin) with custom color support
-- **Auto-detection**: Automatic MCP server discovery
+## 🚀 Quick Start
+
+### Prerequisites
+- **Claude Code CLI** installed and configured
+- **Bash 4.0+** (auto-detected and upgraded on macOS)
+- **jq** for JSON parsing
+
+### Installation & First Run
+```bash
+# Clone and test
+git clone https://github.com/jakreymyers/awesome-claude-statusline.git
+cd awesome-claude-statusline
+chmod +x statusline.sh
+
+# See it in action
+echo '{"workspace":{"current_dir":"'$(pwd)'"}}' | ./statusline.sh
+```
+
+You'll immediately see your current directory, git status, version info, and more - all beautifully formatted with the default **Jak'd theme**.
+
+## ✨ Key Features
+
+### 🎯 **Smart Context Management**
+Never run out of context unexpectedly. The statusline monitors your Claude conversation in real-time:
+- **🟢 Green (0-34%)**: Plenty of space, work freely
+- **🟠 Orange (35-59%)**: Getting full, plan ahead
+- **🔴 Red (60%+)**: Consider using `/compact` soon
+
+### 💰 **Comprehensive Cost Intelligence**
+Track your Claude usage across multiple timeframes:
+- **Monthly/Weekly/Daily** cost breakdowns
+- **Live burn rate** (tokens/minute, $/hour)
+- **Billing block tracking** with reset timers
+- **Projection analysis** for current session
+
+### 🔧 **Git Workflow Integration**
+Stay connected to your codebase:
+- **Branch status** with clean/dirty indicators
+- **Commit activity** with time since last commit
+- **Submodule tracking** for complex projects
+- **Smart path display** (~/project instead of /Users/you/project)
+
+### 🎨 **Beautiful & Themeable**
+- **4 Built-in themes**: Jak'd (default), Classic, Garden, Catppuccin
+- **Consistent emoji system** with perfect dimming
+- **Custom color support** for personal branding
+- **Responsive layout** adapting to your terminal
+
+## 🎯 What You Get
+
+Understanding what information is available helps you customize effectively:
+
+**Line 1 - Project Context**
+```
+🗂️ ~/awesome-claude-statusline • 🌳 (main) • ✅ 15 (2m ago) • 👾 v1.0.117
+```
+
+**Line 2 - Active Session**
+```
+🤖 Claude • 🧠 55% (109k/200k) • ⚙️ MCP: 2 (active)
+```
+
+**Line 3 - Cost & Performance**
+```
+💰 M:$462.43 W:$151.64 D:$36.80 • 🔥 205k/min ($6.66/hr) • ⏰ RESET at 18:00
+```
 
 ## System Architecture
 

@@ -1,0 +1,36 @@
+# Temporary files
+*.tmp
+temp_*
+.temp
+
+# Cache files
+.cache/
+*.cache
+*.lock
+
+# Logs
+*.log
+debug_*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local configuration overrides
+local_config.toml
+private_config.toml
+
+# Test outputs
+test_output/
+test_results/
+
+# Backup files
+*.bak
+*.backup
+*~
