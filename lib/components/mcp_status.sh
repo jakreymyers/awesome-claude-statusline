@@ -46,13 +46,25 @@ render_mcp_status() {
     local formatted_status
     formatted_status=$(get_mcp_status_format "$COMPONENT_MCP_STATUS_STATUS")
     
-    if [[ "$show_server_list" == "true" && "$COMPONENT_MCP_STATUS_SERVERS" != "$CONFIG_MCP_NONE_MESSAGE" ]]; then
-        # Format server list
-        local formatted_servers
-        formatted_servers=$(format_mcp_server_list "$COMPONENT_MCP_STATUS_SERVERS")
-        
-        echo "${formatted_status}: ${formatted_servers}"
+    # Check if we have servers and status indicates connected servers
+    if [[ "$COMPONENT_MCP_STATUS_STATUS" =~ ^([0-9]+)/([0-9]+)$ ]]; then
+        local connected="${BASH_REMATCH[1]}"
+        local total="${BASH_REMATCH[2]}"
+
+        if [[ "$total" == "0" ]] || [[ "$connected" == "0" && "$COMPONENT_MCP_STATUS_SERVERS" == "$CONFIG_MCP_NONE_MESSAGE" ]]; then
+            # No servers or none connected - just show the formatted status
+            echo "$formatted_status"
+        elif [[ "$show_server_list" == "true" && "$COMPONENT_MCP_STATUS_SERVERS" != "$CONFIG_MCP_NONE_MESSAGE" ]]; then
+            # Format and show server list
+            local formatted_servers
+            formatted_servers=$(format_mcp_server_list "$COMPONENT_MCP_STATUS_SERVERS")
+            local clean_servers="${formatted_servers//$'\n'/ }"
+            echo "${formatted_status} (${clean_servers})"
+        else
+            echo "$formatted_status"
+        fi
     else
+        # Unknown status format - just show the formatted status
         echo "$formatted_status"
     fi
     

@@ -62,8 +62,8 @@ format_model_name() {
     local model_name="$1"
     local emoji
     emoji=$(get_model_emoji "$model_name")
-    
-    echo "${emoji} ${CONFIG_CYAN}${model_name}${CONFIG_RESET}"
+
+    echo "${CONFIG_DIM}${emoji}${CONFIG_RESET} ${CONFIG_CYAN}${model_name}${CONFIG_RESET}"
 }
 
 # ============================================================================
@@ -166,12 +166,43 @@ format_daily_cost() {
 # Format live block cost
 format_live_block_cost() {
     local block_info="$1"
-    
+
     if [[ "$block_info" == "$CONFIG_NO_ACTIVE_BLOCK_MESSAGE" ]]; then
         echo "${CONFIG_DIM}${block_info}${CONFIG_RESET}"
     else
         echo "${CONFIG_BRIGHT_GREEN}${block_info}${CONFIG_RESET}"
     fi
+}
+
+# Format unified cost usage display
+format_cost_usage() {
+    local monthly="$1"
+    local weekly="$2"
+    local daily="$3"
+
+    # Format each component with its respective color
+    local monthly_part weekly_part daily_part
+
+    if [[ "$monthly" == "-.--" ]] || [[ -z "$monthly" ]]; then
+        monthly_part="${CONFIG_PINK_BRIGHT}M:\$-.--${CONFIG_RESET}"
+    else
+        monthly_part=$(printf "${CONFIG_PINK_BRIGHT}M:\$%.2f${CONFIG_RESET}" "$monthly")
+    fi
+
+    if [[ "$weekly" == "-.--" ]] || [[ -z "$weekly" ]]; then
+        weekly_part="${CONFIG_INDIGO}W:\$-.--${CONFIG_RESET}"
+    else
+        weekly_part=$(printf "${CONFIG_INDIGO}W:\$%.2f${CONFIG_RESET}" "$weekly")
+    fi
+
+    if [[ "$daily" == "-.--" ]] || [[ -z "$daily" ]]; then
+        daily_part="${CONFIG_TEAL}D:\$-.--${CONFIG_RESET}"
+    else
+        daily_part=$(printf "${CONFIG_TEAL}D:\$%.2f${CONFIG_RESET}" "$daily")
+    fi
+
+    # Combine with money emoji
+    echo "${CONFIG_DIM}💰 ${CONFIG_RESET}${monthly_part} ${weekly_part} ${daily_part} "
 }
 
 # ============================================================================
@@ -181,23 +212,23 @@ format_live_block_cost() {
 # Get MCP status color and format
 get_mcp_status_format() {
     local mcp_status="$1"
-    
+
     if [[ "$mcp_status" == "?/?" ]]; then
-        echo "${CONFIG_RED}MCP:?/?${CONFIG_RESET}"
+        echo "${CONFIG_DIM}⚙️ ${CONFIG_RESET} ${CONFIG_LIGHT_GRAY}MCP: 0 (none)${CONFIG_RESET}"
     elif [[ "$mcp_status" =~ ^([0-9]+)/([0-9]+)$ ]]; then
         local connected="${BASH_REMATCH[1]}"
         local total="${BASH_REMATCH[2]}"
 
         if [[ "$total" == "0" ]]; then
             # No MCP servers configured
-            echo "${CONFIG_DIM}---${CONFIG_RESET}"
+            echo "${CONFIG_DIM}⚙️ ${CONFIG_RESET} ${CONFIG_LIGHT_GRAY}MCP: 0 (none)${CONFIG_RESET}"
         elif [[ "$connected" == "$total" ]]; then
-            echo "${CONFIG_BRIGHT_GREEN}MCP:${mcp_status}${CONFIG_RESET}"
+            echo "${CONFIG_DIM}⚙️ ${CONFIG_RESET} ${CONFIG_LIGHT_GRAY}MCP: ${connected}/${total}${CONFIG_RESET}"
         else
-            echo "${CONFIG_YELLOW}MCP:${mcp_status}${CONFIG_RESET}"
+            echo "${CONFIG_DIM}⚙️ ${CONFIG_RESET} ${CONFIG_LIGHT_GRAY}MCP: ${connected}/${total}${CONFIG_RESET}"
         fi
     else
-        echo "${CONFIG_RED}MCP:?/?${CONFIG_RESET}"
+        echo "${CONFIG_DIM}⚙️ ${CONFIG_RESET} ${CONFIG_LIGHT_GRAY}MCP: 0 (none)${CONFIG_RESET}"
     fi
 }
 
@@ -228,7 +259,7 @@ format_mcp_server_list() {
         local formatted_server
         case "$server_status" in
             "connected")
-                formatted_server="${CONFIG_BRIGHT_GREEN}${server_name}${CONFIG_RESET}"
+                formatted_server="${CONFIG_LIGHT_GRAY}${server_name}${CONFIG_RESET}"
                 ;;
             *)
                 formatted_server="${CONFIG_RED}${CONFIG_STRIKETHROUGH}${server_name}${CONFIG_RESET}"
@@ -450,35 +481,12 @@ build_line4() {
     fi
 }
 
-# Build Line 5: Islamic Prayer Times & Hijri Calendar (conditional)
-# Format: 🕌 29 Jumada I 1446 │ Fajr 05:30 ✓ │ Dhuhr 12:45 ✓ │ Asr 15:45 (next) │ Maghrib 18:30 │ Isha 20:00
-build_line5_prayer() {
-    local prayer_enabled="$1"
-    
-    # Only build prayer line if prayer module is loaded and enabled
-    if [[ "$prayer_enabled" == "true" ]] && is_module_loaded "prayer"; then
-        # Get prayer display from prayer module
-        if type get_prayer_display &>/dev/null; then
-            local prayer_display
-            prayer_display=$(get_prayer_display)
-            
-            if [[ $? -eq 0 && -n "$prayer_display" ]]; then
-                echo "$prayer_display"
-            else
-                # Fallback display if prayer data unavailable
-                echo "🕌 Prayer times unavailable"
-            fi
-        else
-            debug_log "get_prayer_display function not available" "WARN"
-        fi
-    fi
-}
 
 # ============================================================================
 # COMPLETE STATUSLINE BUILDER
 # ============================================================================
 
-# Build complete 5-line statusline output (with optional prayer line)
+# Build complete statusline output
 build_complete_statusline() {
     local statusline_data="$1"
     
@@ -500,23 +508,20 @@ build_complete_statusline() {
     local mcp_status="${15}"
     local mcp_servers="${16}"
     local reset_info="${17}"
-    local prayer_enabled="${18:-false}"
-    
+
     # Build each line
-    local line1 line2 line3 line4 line5
-    
+    local line1 line2 line3 line4
+
     line1=$(build_line1 "$mode_info" "$dir_display" "$branch" "$git_status" "$commits_count" "$claude_version" "$submodule_display")
     line2=$(build_line2 "$model_name" "$session_cost" "$month_cost" "$week_cost" "$today_cost" "$block_info")
     line3=$(build_line3 "$mcp_status" "$mcp_servers")
     line4=$(build_line4 "$reset_info")
-    line5=$(build_line5_prayer "$prayer_enabled")
-    
+
     # Output lines
     echo "$line1"
     echo "$line2"
     echo "$line3"
     [[ -n "$line4" ]] && echo "$line4"
-    [[ -n "$line5" ]] && echo "$line5"
 }
 
 # ============================================================================
@@ -720,7 +725,7 @@ init_display_module
 export -f format_directory_path get_model_emoji format_model_name
 export -f format_git_branch format_git_status_emoji format_git_info
 export -f format_cost_value format_session_cost format_monthly_cost format_weekly_cost
-export -f format_daily_cost format_live_block_cost get_mcp_status_format format_mcp_server_list
+export -f format_daily_cost format_live_block_cost format_cost_usage get_mcp_status_format format_mcp_server_list
 export -f format_claude_version format_submodule_display format_current_time format_separator
 export -f build_line1 build_line2 build_line3 build_line4 build_complete_statusline
 export -f get_line_config build_modular_statusline use_modular_display build_statusline

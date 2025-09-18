@@ -109,10 +109,6 @@ load_module "cost" || {
     handle_warning "Cost module failed to load - cost tracking disabled. ccusage integration unavailable." "main"
 }
 
-# Load prayer times and Hijri calendar module
-load_module "prayer" || {
-    handle_warning "Prayer module failed to load - prayer times and Hijri calendar disabled." "main"
-}
 
 # Load component system module (required for modular display)
 load_module "components" || {
@@ -373,14 +369,12 @@ else
         line2=$(build_line2 "$model_name" "$session_cost" "$month_cost" "$week_cost" "$today_cost" "$block_info")  
         line3=$(build_line3 "$mcp_status" "$mcp_servers")
         line4=$(build_line4 "$reset_info")
-        line5=$(build_line5_prayer "true")
         
         # Output the statusline
         echo "$line1"
         echo "$line2"
         echo "$line3"
         [[ -n "$line4" ]] && echo "$line4"
-        [[ -n "$line5" ]] && echo "$line5"
     else
         # Fallback: basic output without formatting (should not happen)
         echo "ERROR: Display module not loaded - cannot generate statusline" >&2
