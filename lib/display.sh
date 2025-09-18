@@ -205,6 +205,20 @@ format_cost_usage() {
     echo "${CONFIG_DIM}💰 ${CONFIG_RESET}${monthly_part} ${weekly_part} ${daily_part} "
 }
 
+# Format tokens to thousands (38k format)
+format_tokens_to_thousands() {
+    local tokens="$1"
+
+    if [[ -z "$tokens" || "$tokens" == "0" ]]; then
+        echo "0k"
+        return 0
+    fi
+
+    # Round to nearest thousand
+    local thousands=$((($tokens + 500) / 1000))
+    echo "${thousands}k"
+}
+
 # Format context usage display
 format_context_usage() {
     local percentage="$1"
@@ -227,15 +241,17 @@ format_context_usage() {
         context_color=$(printf '\033[38;2;0;200;0m')    # Green - plenty of space
     fi
 
-    # Format tokens with comma separators for readability
-    local formatted_total formatted_limit
-    formatted_total=$(printf "%'d" "$total_tokens" 2>/dev/null || echo "$total_tokens")
-    formatted_limit=$(printf "%'d" "$limit" 2>/dev/null || echo "$limit")
+    # Round percentage to whole number
+    local rounded_percentage
+    rounded_percentage=$(printf "%.0f" "$percentage" 2>/dev/null || echo "$percentage_int")
 
-    # For now, display the total (5th element) as requested
-    # Individual token types available for future detailed display:
-    # I:$input_tokens CC:$cache_creation_tokens CR:$cache_read_tokens O:$output_tokens
-    echo "${CONFIG_DIM}🧠 ${CONFIG_RESET}${context_color}${percentage}% (${formatted_total}/${formatted_limit})${CONFIG_RESET}"
+    # Format tokens in thousands (e.g., 88k/200k)
+    local formatted_total formatted_limit
+    formatted_total=$(format_tokens_to_thousands "$total_tokens")
+    formatted_limit=$(format_tokens_to_thousands "$limit")
+
+    # Display with rounded percentage and thousands format
+    echo "${CONFIG_DIM}🧠${CONFIG_RESET} ${context_color}${rounded_percentage}% (${formatted_total}/${formatted_limit})${CONFIG_RESET}"
 }
 
 # ============================================================================

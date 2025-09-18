@@ -22,6 +22,25 @@ COMPONENT_CONTEXT_USAGE_LIMIT=""
 
 # Constants
 CONTEXT_LIMIT=200000
+SYSTEM_OVERHEAD_TOKENS=15000  # Estimated tokens for system prompt and system tools
+
+# ============================================================================
+# UTILITY FUNCTIONS
+# ============================================================================
+
+# Format tokens to thousands (38k format)
+format_tokens_to_thousands() {
+    local tokens="$1"
+
+    if [[ -z "$tokens" || "$tokens" == "0" ]]; then
+        echo "0k"
+        return 0
+    fi
+
+    # Round to nearest thousand
+    local thousands=$((($tokens + 500) / 1000))
+    echo "${thousands}k"
+}
 
 # ============================================================================
 # COMPONENT DATA COLLECTION
@@ -30,37 +49,53 @@ CONTEXT_LIMIT=200000
 # Get context usage from Claude Code's internal data
 # This attempts to access the same data that /context command uses
 get_claude_context_usage() {
-    # Look for the current session's transcript in the working directory pattern
     local current_dir="$1"
     local claude_projects_dir="$HOME/.claude/projects"
 
     if [[ -d "$claude_projects_dir" ]]; then
-        # For current directory, use exact directory name if we can detect it
-        # Try direct pattern matching for known statusline directory
-        local transcript_files
-        if [[ "$current_dir" == *"statusline"* ]]; then
-            # Direct lookup for statusline project - look for the exact directory first
-            local statusline_dir
-            statusline_dir=$(find "$claude_projects_dir" -name "*statusline*" -type d 2>/dev/null | head -1)
-            if [[ -n "$statusline_dir" ]]; then
-                transcript_files=$(find "$statusline_dir" -name "*.jsonl" -type f 2>/dev/null)
+        # Convert current directory path to Claude's project directory naming convention
+        # Claude Code converts /Users/jak/dev/project-name to -Users-jak-dev-project-name
+        local project_pattern
+        project_pattern=$(echo "$current_dir" | sed 's|/|-|g' | sed 's|^-||')
+
+        debug_log "Looking for project pattern: $project_pattern" "INFO"
+        debug_log "Current directory: $current_dir" "INFO"
+
+        # Find the exact project directory
+        local project_dir
+        project_dir=$(find "$claude_projects_dir" -maxdepth 1 -name "*${project_pattern}*" -type d 2>/dev/null | head -1)
+
+        if [[ -n "$project_dir" ]]; then
+            debug_log "Found project directory: $project_dir" "INFO"
+
+            # Get the most recently modified transcript file from this project
+            local latest_transcript
+            latest_transcript=$(find "$project_dir" -name "*.jsonl" -type f -exec ls -t {} + 2>/dev/null | head -1)
+
+            if [[ -n "$latest_transcript" && -f "$latest_transcript" ]]; then
+                debug_log "Found latest transcript: $latest_transcript" "INFO"
+                echo "$latest_transcript"
+                return 0
+            else
+                debug_log "No transcript files found in $project_dir" "WARN"
             fi
         else
-            # Convert path to project directory pattern
-            local project_pattern
-            project_pattern=$(echo "$current_dir" | sed 's|/|-|g' | sed 's|^-||')
-            transcript_files=$(find "$claude_projects_dir" -name "*${project_pattern}*" -name "*.jsonl" -type f 2>/dev/null)
-        fi
+            debug_log "No project directory found for pattern: $project_pattern" "WARN"
 
-        debug_log "Looking in current_dir: $current_dir" "INFO"
+            # Fallback: try to find any recent transcript across all projects
+            local fallback_transcript
+            fallback_transcript=$(find "$claude_projects_dir" -name "*.jsonl" -type f -exec ls -t {} + 2>/dev/null | head -1)
 
-        debug_log "Found transcript files: $transcript_files" "INFO"
-
-        if [[ -n "$transcript_files" ]]; then
-            # Get the most recently modified transcript file
-            echo "$transcript_files" | xargs ls -t 2>/dev/null | head -1
+            if [[ -n "$fallback_transcript" ]]; then
+                debug_log "Using fallback transcript: $fallback_transcript" "INFO"
+                echo "$fallback_transcript"
+                return 0
+            fi
         fi
     fi
+
+    debug_log "No transcript file found" "ERROR"
+    return 1
 }
 
 # Parse transcript file for latest token usage
@@ -68,41 +103,45 @@ parse_transcript_usage() {
     local transcript_file="$1"
 
     if [[ -f "$transcript_file" ]]; then
-        # Read from end of file to find most recent assistant message with usage
-        # Using tail and reverse processing for efficiency
-        local recent_lines
-        recent_lines=$(tail -100 "$transcript_file" 2>/dev/null)
+        debug_log "Parsing transcript file: $transcript_file" "INFO"
 
-        # Parse JSON lines in reverse order to find latest usage
-        echo "$recent_lines" | tac | while IFS= read -r line; do
-            if [[ -n "$line" ]]; then
-                # Check if this is an assistant message with usage data
-                if echo "$line" | grep -q '"type":"assistant"' && echo "$line" | grep -q '"usage"'; then
-                    # Extract token usage using jq-like parsing with sed/grep
-                    local input_tokens cache_creation_tokens cache_read_tokens output_tokens
+        # Use grep to find the most recent usage data more efficiently
+        # Look for the last occurrence of usage data in the file
+        local usage_line
+        usage_line=$(grep '"usage":{' "$transcript_file" | tail -1)
 
-                    input_tokens=$(echo "$line" | sed -n 's/.*"input_tokens":\([0-9]*\).*/\1/p' | head -1)
-                    cache_creation_tokens=$(echo "$line" | sed -n 's/.*"cache_creation_input_tokens":\([0-9]*\).*/\1/p' | head -1)
-                    cache_read_tokens=$(echo "$line" | sed -n 's/.*"cache_read_input_tokens":\([0-9]*\).*/\1/p' | head -1)
-                    output_tokens=$(echo "$line" | sed -n 's/.*"output_tokens":\([0-9]*\).*/\1/p' | head -1)
+        if [[ -n "$usage_line" ]]; then
+            debug_log "Found usage line: ${usage_line:0:100}..." "INFO"
 
-                    # Default to 0 if not found
-                    input_tokens=${input_tokens:-0}
-                    cache_creation_tokens=${cache_creation_tokens:-0}
-                    cache_read_tokens=${cache_read_tokens:-0}
-                    output_tokens=${output_tokens:-0}
+            # Extract token values using more robust regex patterns
+            local input_tokens cache_creation_tokens cache_read_tokens output_tokens
 
-                    # Calculate total context usage
-                    local total_tokens=$((input_tokens + cache_creation_tokens + cache_read_tokens + output_tokens))
+            input_tokens=$(echo "$usage_line" | grep -o '"input_tokens":[0-9]*' | grep -o '[0-9]*$' | head -1)
+            cache_creation_tokens=$(echo "$usage_line" | grep -o '"cache_creation_input_tokens":[0-9]*' | grep -o '[0-9]*$' | head -1)
+            cache_read_tokens=$(echo "$usage_line" | grep -o '"cache_read_input_tokens":[0-9]*' | grep -o '[0-9]*$' | head -1)
+            output_tokens=$(echo "$usage_line" | grep -o '"output_tokens":[0-9]*' | grep -o '[0-9]*$' | head -1)
 
-                    if [[ $total_tokens -gt 0 ]]; then
-                        # Return all 5 values: input:cache_creation:cache_read:output:total
-                        echo "${input_tokens}:${cache_creation_tokens}:${cache_read_tokens}:${output_tokens}:${total_tokens}"
-                        return 0
-                    fi
-                fi
+            # Default to 0 if not found
+            input_tokens=${input_tokens:-0}
+            cache_creation_tokens=${cache_creation_tokens:-0}
+            cache_read_tokens=${cache_read_tokens:-0}
+            output_tokens=${output_tokens:-0}
+
+            # Calculate total context usage (include system overhead)
+            local total_tokens=$((input_tokens + cache_creation_tokens + cache_read_tokens + output_tokens + SYSTEM_OVERHEAD_TOKENS))
+
+            debug_log "Parsed tokens: input=$input_tokens, cache_creation=$cache_creation_tokens, cache_read=$cache_read_tokens, output=$output_tokens, total=$total_tokens" "INFO"
+
+            if [[ $total_tokens -gt 0 ]]; then
+                # Return all 5 values: input:cache_creation:cache_read:output:total
+                echo "${input_tokens}:${cache_creation_tokens}:${cache_read_tokens}:${output_tokens}:${total_tokens}"
+                return 0
             fi
-        done
+        else
+            debug_log "No usage data found in transcript file" "WARN"
+        fi
+    else
+        debug_log "Transcript file not found or not readable: $transcript_file" "ERROR"
     fi
 
     echo "0:0:0:0:0"
@@ -121,8 +160,8 @@ estimate_context_from_transcript() {
 
         debug_log "Transcript file size: $total_chars characters" "INFO"
 
-        # Estimate tokens (adjusted calculation: chars / 11)
-        total_estimated_tokens=$((total_chars / 11))
+        # Estimate tokens (adjusted calculation: chars / 11) plus system overhead
+        total_estimated_tokens=$((total_chars / 11 + SYSTEM_OVERHEAD_TOKENS))
 
         debug_log "Estimated tokens: $total_estimated_tokens" "INFO"
 
@@ -159,23 +198,47 @@ collect_context_usage_data() {
     if [[ -n "$transcript_file" && -f "$transcript_file" ]]; then
         debug_log "Found transcript file: $transcript_file" "INFO"
 
-        # Estimate context usage from transcript size and content
-        local estimated_tokens
-        estimated_tokens=$(estimate_context_from_transcript "$transcript_file")
+        # Parse actual usage data from the transcript
+        local usage_data
+        usage_data=$(parse_transcript_usage "$transcript_file")
 
-        if [[ $estimated_tokens -gt 0 ]]; then
-            COMPONENT_CONTEXT_USAGE_TOTAL_TOKENS="$estimated_tokens"
-            # For display purposes, treat estimated tokens as "input" tokens
-            COMPONENT_CONTEXT_USAGE_INPUT_TOKENS="$estimated_tokens"
+        if [[ "$usage_data" != "0:0:0:0:0" ]]; then
+            # Parse the usage data (format: input:cache_creation:cache_read:output:total)
+            local input_tokens cache_creation_tokens cache_read_tokens output_tokens total_tokens
 
-            # Calculate percentage based on estimated tokens
-            COMPONENT_CONTEXT_USAGE_PERCENTAGE=$(echo "scale=1; $estimated_tokens * 100 / $CONTEXT_LIMIT" | bc 2>/dev/null || echo "0.0")
+            IFS=':' read -r input_tokens cache_creation_tokens cache_read_tokens output_tokens total_tokens <<< "$usage_data"
+
+            # Store the parsed data
+            COMPONENT_CONTEXT_USAGE_INPUT_TOKENS="$input_tokens"
+            COMPONENT_CONTEXT_USAGE_CACHE_CREATION_TOKENS="$cache_creation_tokens"
+            COMPONENT_CONTEXT_USAGE_CACHE_READ_TOKENS="$cache_read_tokens"
+            COMPONENT_CONTEXT_USAGE_OUTPUT_TOKENS="$output_tokens"
+            COMPONENT_CONTEXT_USAGE_TOTAL_TOKENS="$total_tokens"
+
+            # Calculate percentage based on actual token usage
+            COMPONENT_CONTEXT_USAGE_PERCENTAGE=$(echo "scale=1; $total_tokens * 100 / $CONTEXT_LIMIT" | bc 2>/dev/null || echo "0.0")
+
+            debug_log "Parsed actual usage data: ${total_tokens} tokens (${COMPONENT_CONTEXT_USAGE_PERCENTAGE}%)" "INFO"
+        else
+            debug_log "No valid usage data found in transcript, using file size estimation as fallback" "WARN"
+
+            # Fallback to file size estimation
+            local estimated_tokens
+            estimated_tokens=$(estimate_context_from_transcript "$transcript_file")
+
+            if [[ $estimated_tokens -gt 0 ]]; then
+                COMPONENT_CONTEXT_USAGE_TOTAL_TOKENS="$estimated_tokens"
+                COMPONENT_CONTEXT_USAGE_INPUT_TOKENS="$estimated_tokens"
+                COMPONENT_CONTEXT_USAGE_PERCENTAGE=$(echo "scale=1; $estimated_tokens * 100 / $CONTEXT_LIMIT" | bc 2>/dev/null || echo "0.0")
+
+                debug_log "Using estimated tokens: ${estimated_tokens} (${COMPONENT_CONTEXT_USAGE_PERCENTAGE}%)" "INFO"
+            fi
         fi
     else
         debug_log "No transcript file found for current directory: $current_dir" "WARN"
     fi
 
-    debug_log "context_usage data: ${COMPONENT_CONTEXT_USAGE_PERCENTAGE}% (~${COMPONENT_CONTEXT_USAGE_TOTAL_TOKENS} estimated tokens)" "INFO"
+    debug_log "Final context_usage data: ${COMPONENT_CONTEXT_USAGE_PERCENTAGE}% (${COMPONENT_CONTEXT_USAGE_TOTAL_TOKENS} tokens)" "INFO"
     return 0
 }
 
@@ -219,10 +282,10 @@ render_context_usage() {
             context_color=$(printf '\033[38;2;0;255;0m')    # Green - plenty of space
         fi
 
-        # Format with comma separators for readability
+        # Format tokens in thousands
         local formatted_total formatted_limit
-        formatted_total=$(printf "%'d" "$COMPONENT_CONTEXT_USAGE_TOTAL_TOKENS" 2>/dev/null || echo "$COMPONENT_CONTEXT_USAGE_TOTAL_TOKENS")
-        formatted_limit=$(printf "%'d" "$COMPONENT_CONTEXT_USAGE_LIMIT" 2>/dev/null || echo "$COMPONENT_CONTEXT_USAGE_LIMIT")
+        formatted_total=$(format_tokens_to_thousands "$COMPONENT_CONTEXT_USAGE_TOTAL_TOKENS")
+        formatted_limit=$(format_tokens_to_thousands "$COMPONENT_CONTEXT_USAGE_LIMIT")
 
         echo "${CONFIG_DIM}🧠${CONFIG_RESET} ${context_color}${COMPONENT_CONTEXT_USAGE_PERCENTAGE}% (${formatted_total}/${formatted_limit})${CONFIG_RESET}"
     fi
