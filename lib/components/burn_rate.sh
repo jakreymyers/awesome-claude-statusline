@@ -39,10 +39,10 @@ collect_burn_rate_data() {
                 local formatted_rate formatted_cost burn_rate_color
                 formatted_rate=$(format_tokens_per_minute "$burn_rate")
                 formatted_cost=$(printf "%.2f" "$cost_per_hour" 2>/dev/null || echo "0.00")
-                burn_rate_color=$(printf '\033[38;2;255;96;96m')  # #FF6060
+                burn_rate_color="${CONFIG_BURN_RATE_COLOR:-$(printf '\033[38;2;255;96;96m')}"  # #FF6060
                 COMPONENT_BURN_RATE_INFO="${CONFIG_DIM}🔥${CONFIG_RESET} ${burn_rate_color}${formatted_rate} (\$${formatted_cost}/hr)${CONFIG_RESET}"
             else
-                burn_rate_color=$(printf '\033[38;2;255;96;96m')  # #FF6060
+                burn_rate_color="${CONFIG_BURN_RATE_COLOR:-$(printf '\033[38;2;255;96;96m')}"  # #FF6060
                 COMPONENT_BURN_RATE_INFO="${CONFIG_DIM}🔥${CONFIG_RESET} ${burn_rate_color}No active burn${CONFIG_RESET}"
             fi
         else

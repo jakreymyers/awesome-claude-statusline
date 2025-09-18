@@ -29,7 +29,7 @@ export CONFIG_FILE_PATHS=(
 # No hardcoded defaults - single source of truth approach
 
 # Global configuration variables (will be set by load_configuration)
-export CONFIG_THEME="catppuccin"  # Default theme for single source architecture
+export CONFIG_THEME="jakd"  # Default Jak'd theme preserving current visual style
 export CONFIG_SHOW_COMMITS=""
 export CONFIG_SHOW_VERSION=""
 export CONFIG_SHOW_SUBMODULES=""

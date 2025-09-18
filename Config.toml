@@ -15,8 +15,8 @@
 
 # === THEME CONFIGURATION ===
 # Choose your visual theme for the statusline
-# Available themes: "classic", "garden", "catppuccin", "custom"
-theme.name = "catppuccin"
+# Available themes: "jakd", "classic", "garden", "catppuccin", "custom"
+theme.name = "jakd"
 
 # === CUSTOM COLORS ===
 # Only used when theme.name = "custom"

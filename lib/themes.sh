@@ -104,6 +104,48 @@ apply_catppuccin_theme() {
     debug_log "Applied catppuccin theme" "INFO"
 }
 
+# Jak'd theme (preserves current component colors as cohesive theme - DEFAULT)
+apply_jakd_theme() {
+    # Standard theme colors - mostly classic with Jak'd customizations
+    CONFIG_RED=$(printf '\033[38;2;255;96;96m')           # #FF6060 (matches burn_rate/context critical)
+    CONFIG_BLUE=$(printf '\033[34m')                      # Classic blue
+    CONFIG_GREEN=$(printf '\033[38;2;78;182;80m')         # #4EB650 (matches commits)
+    CONFIG_YELLOW=$(printf '\033[33m')                    # Classic yellow
+    CONFIG_MAGENTA=$(printf '\033[35m')                   # Classic magenta
+    CONFIG_CYAN=$(printf '\033[36m')                      # Classic cyan
+    CONFIG_WHITE=$(printf '\033[37m')                     # Classic white
+    CONFIG_ORANGE=$(printf '\033[38;2;255;165;0m')        # Orange (matches context warning)
+    CONFIG_LIGHT_ORANGE=$(printf '\033[38;5;215m')        # Light orange
+    CONFIG_LIGHT_GRAY=$(printf '\033[38;5;248m')          # Light gray
+    CONFIG_BRIGHT_GREEN=$(printf '\033[38;2;0;255;0m')    # Bright green (matches context safe)
+    CONFIG_PURPLE=$(printf '\033[95m')                    # Classic purple
+    CONFIG_TEAL=$(printf '\033[38;5;73m')                 # Classic teal
+    CONFIG_GOLD=$(printf '\033[38;5;220m')                # Classic gold
+    CONFIG_PINK_BRIGHT=$(printf '\033[38;5;205m')         # Classic bright pink
+    CONFIG_INDIGO=$(printf '\033[38;5;105m')              # Classic indigo
+    CONFIG_VIOLET=$(printf '\033[38;5;99m')               # Classic violet
+    CONFIG_LIGHT_BLUE=$(printf '\033[38;5;111m')          # Classic light blue
+
+    # Jak'd-specific semantic colors (preserving current hardcoded colors)
+    CONFIG_DIRECTORY_COLOR=$(printf '\033[38;2;225;187;139m')  # Warm beige/tan (directory_info)
+    CONFIG_GIT_BRANCH_COLOR=$(printf '\033[38;2;127;86;50m')   # #7F5632 Brown (git_branch)
+    CONFIG_SUCCESS_COLOR=$(printf '\033[38;2;78;182;80m')      # #4EB650 Green (commits)
+    CONFIG_BURN_RATE_COLOR=$(printf '\033[38;2;255;96;96m')    # #FF6060 Red/coral (burn_rate)
+
+    # Context usage dynamic colors (preserving current conditional logic)
+    CONFIG_CONTEXT_SAFE=$(printf '\033[38;2;0;255;0m')        # Bright green (<60%)
+    CONFIG_CONTEXT_WARNING=$(printf '\033[38;2;255;165;0m')   # Orange (60-79%)
+    CONFIG_CONTEXT_CRITICAL=$(printf '\033[38;2;255;96;96m')  # Red (≥80%)
+
+    # Standard formatting
+    CONFIG_DIM=$(printf '\033[2m')
+    CONFIG_ITALIC=$(printf '\033[3m')
+    CONFIG_STRIKETHROUGH=$(printf '\033[9m')
+    CONFIG_RESET=$(printf '\033[0m')
+
+    debug_log "Applied Jak'd theme (default theme preserving current visual style)" "INFO"
+}
+
 # ============================================================================
 # THEME APPLICATION
 # ============================================================================
@@ -115,6 +157,9 @@ apply_theme() {
     debug_log "Applying theme: $theme" "INFO"
     
     case "$theme" in
+    "jakd"|"jak'd"|"")  # Support variations and default to jakd when empty
+        apply_jakd_theme
+        ;;
     "classic")
         apply_classic_theme
         ;;
@@ -131,8 +176,8 @@ apply_theme() {
         apply_custom_theme_defaults
         ;;
     *)
-        handle_warning "Unknown theme '$theme', falling back to catppuccin" "apply_theme"
-        apply_catppuccin_theme
+        handle_warning "Unknown theme '$theme', falling back to Jak'd (default)" "apply_theme"
+        apply_jakd_theme
         ;;
     esac
     
