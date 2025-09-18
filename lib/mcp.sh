@@ -51,9 +51,10 @@ execute_mcp_list() {
     
     # Use universal caching system with repository-aware cache keys
     if [[ "${STATUSLINE_CACHE_LOADED:-}" == "true" ]]; then
-        # Generate repository-aware cache key to prevent cross-contamination
-        local cache_key
-        cache_key=$(generate_typed_cache_key "claude_mcp_list" "mcp")
+        # Generate project-aware cache key to prevent cross-contamination
+        local cache_key project_identifier
+        project_identifier=$(pwd | sed 's|/|_|g' | sed 's|^_||')
+        cache_key=$(generate_typed_cache_key "claude_mcp_list_${project_identifier}" "mcp")
         
         # Use direct command instead of function call for cache compatibility
         if command_exists timeout; then
@@ -71,16 +72,30 @@ execute_mcp_list() {
 # Internal function for direct MCP list execution (used by caching)
 _execute_mcp_list_direct() {
     local timeout_duration="${1:-$CONFIG_MCP_TIMEOUT}"
-    
-    # Execute with timeout protection
-    if command_exists timeout; then
-        timeout "$timeout_duration" claude mcp list 2>/dev/null
-    elif command_exists gtimeout; then
-        gtimeout "$timeout_duration" claude mcp list 2>/dev/null
-    else
-        # Fallback without timeout (risky)
-        claude mcp list 2>/dev/null
-    fi
+
+    # Ensure MCP commands run from the correct project directory
+    # This enables dynamic project detection for MCP servers
+    local original_dir current_project_dir
+    original_dir=$(pwd)
+
+    # Use the current working directory as the project context
+    # This allows MCP detection to work across different projects
+    current_project_dir="$original_dir"
+
+    debug_log "MCP detection running from project directory: $current_project_dir" "INFO"
+
+    # Execute MCP list from project directory with timeout protection
+    (
+        cd "$current_project_dir" 2>/dev/null || cd "$original_dir"
+        if command_exists timeout; then
+            timeout "$timeout_duration" claude mcp list 2>/dev/null
+        elif command_exists gtimeout; then
+            gtimeout "$timeout_duration" claude mcp list 2>/dev/null
+        else
+            # Fallback without timeout (risky)
+            claude mcp list 2>/dev/null
+        fi
+    )
 }
 
 # Parse MCP server list output
