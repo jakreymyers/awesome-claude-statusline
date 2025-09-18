@@ -53,7 +53,9 @@ format_directory_info_path() {
     fi
 
     # Add card index dividers emoji with dim effect and custom color text
-    echo "${CONFIG_DIM}🗂️${CONFIG_RESET}  \033[38;2;225;187;139m${formatted_path}\033[0m"
+    local custom_color
+    custom_color=$(printf '\033[38;2;225;187;139m')
+    echo "${CONFIG_DIM}🗂️${CONFIG_RESET}  ${custom_color}${formatted_path}${CONFIG_RESET}"
 }
 
 # ============================================================================
