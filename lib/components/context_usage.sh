@@ -274,9 +274,9 @@ render_context_usage() {
         local percentage_int
         percentage_int=$(echo "$COMPONENT_CONTEXT_USAGE_PERCENTAGE" | cut -d. -f1)
 
-        if [[ $percentage_int -ge 80 ]]; then
+        if [[ $percentage_int -ge 60 ]]; then
             context_color="${CONFIG_CONTEXT_CRITICAL:-$(printf '\033[38;2;255;96;96m')}"  # Red - needs /compact soon
-        elif [[ $percentage_int -ge 60 ]]; then
+        elif [[ $percentage_int -ge 35 ]]; then
             context_color="${CONFIG_CONTEXT_WARNING:-$(printf '\033[38;2;255;165;0m')}"  # Orange - getting full
         else
             context_color="${CONFIG_CONTEXT_SAFE:-$(printf '\033[38;2;0;255;0m')}"    # Green - plenty of space
