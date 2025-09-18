@@ -361,8 +361,8 @@ hijri.show_weekday = true              # Include day of week in display
 # Number of lines to display (1-9) - SHOWCASING ALL 18 ATOMIC COMPONENTS!
 display.lines = 5
 
-# Line 1: Repository Core (atomic git components + info)
-display.line1.components = ["repo_info", "commits", "version_info"]
+# Line 1: Repository Core (separated directory and git components)
+display.line1.components = ["directory_info", "git_branch", "commits", "version_info"]
 display.line1.separator = " ･ "
 display.line1.show_when_empty = true
 
@@ -413,8 +413,10 @@ display.line9.show_when_empty = false
 #
 # === LOGICAL COMPONENT CATEGORIES (20 Total) ===
 #
-# Repository & Git Components (5):
-# - "repo_info"      - Repository directory and git branch/status
+# Repository & Git Components (6):
+# - "directory_info" - Current directory path with card index dividers emoji
+# - "git_branch"     - Git branch name with leaf emoji
+# - "repo_info"      - Repository directory and git branch/status (legacy combined)
 # - "commits"        - Commit count for current repository
 # - "submodules"     - Submodule status and count
 # - "git_stats"      - Combined commits + submodules (legacy format)

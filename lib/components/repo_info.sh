@@ -68,11 +68,11 @@ render_repo_info() {
     # Format directory path with ~ notation
     local dir_display
     dir_display=$(format_directory_path "$COMPONENT_REPO_INFO_DIRECTORY")
-    output="${output}${CONFIG_BLUE}${dir_display}${CONFIG_RESET}"
+    output="${output}${dir_display}"
     
-    # Add git branch info if available with leaf emoji
+    # Add git branch info if available with dim leaf emoji and bright text
     if [[ -n "$COMPONENT_REPO_INFO_BRANCH" ]]; then
-        output="${output} 🌿 ${CONFIG_GREEN}(${COMPONENT_REPO_INFO_BRANCH})${CONFIG_RESET}"
+        output="${output} ${CONFIG_DIM}🌿${CONFIG_RESET}  ${CONFIG_GREEN}(${COMPONENT_REPO_INFO_BRANCH})${CONFIG_RESET}"
     fi
     
     echo "$output"

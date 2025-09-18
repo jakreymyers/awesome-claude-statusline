@@ -51,9 +51,9 @@ render_commits() {
         return 0
     fi
     
-    # Build commits display with emoji prefix, count, and time since last commit
+    # Build commits display with dim ballot box emoji and bright text
     # Always show time since last commit, regardless of today's count
-    local commits_display="📝 ${COMPONENT_COMMITS_COUNT} (${COMPONENT_COMMITS_LAST_TIME})"
+    local commits_display="${CONFIG_DIM}☑️${CONFIG_RESET}  ${COMPONENT_COMMITS_COUNT} (${COMPONENT_COMMITS_LAST_TIME})"
 
     echo "$commits_display"
     return 0

@@ -41,8 +41,8 @@ format_directory_path() {
         formatted_path="$current_dir"
     fi
 
-    # Add folder emoji prefix for consistent component formatting
-    echo "📁 ${formatted_path}"
+    # Add folder emoji prefix with dim effect and full opacity text
+    echo "${CONFIG_DIM}📁${CONFIG_RESET}  ${CONFIG_BLUE}${formatted_path}${CONFIG_RESET}"
 }
 
 # ============================================================================
@@ -252,8 +252,8 @@ format_mcp_server_list() {
 # Format Claude version
 format_claude_version() {
     local version="$1"
-    # Add version emoji prefix and simplified v format
-    echo "🏷️ ${CONFIG_PURPLE}v${version}${CONFIG_RESET}"
+    # Simplified v format without emoji
+    echo "${CONFIG_PURPLE}v${version}${CONFIG_RESET}"
 }
 
 # ============================================================================
