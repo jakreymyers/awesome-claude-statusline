@@ -25,8 +25,10 @@ is_git_repository() {
     # Use cached result if available (30 second cache - directories rarely change repo status)
     if [[ "${STATUSLINE_CACHE_LOADED:-}" == "true" ]]; then
         local current_dir=$(pwd)
+        local sanitized_dir="${current_dir//\//_}"
+        sanitized_dir="${sanitized_dir//\./_}"
         local result
-        result=$(cache_git_operation "is_repo_${current_dir//\//_}" "$CACHE_DURATION_SHORT" git rev-parse --is-inside-work-tree)
+        result=$(cache_git_operation "is_repo_${sanitized_dir}" "$CACHE_DURATION_SHORT" git rev-parse --is-inside-work-tree)
         [[ -n "$result" ]] && [[ "$result" == "true" ]]
     else
         # Fallback to direct check
@@ -40,7 +42,9 @@ get_git_root() {
         # Cache git root per directory (medium duration - rarely changes)
         if [[ "${STATUSLINE_CACHE_LOADED:-}" == "true" ]]; then
             local current_dir=$(pwd)
-            cache_git_operation "root_${current_dir//\//_}" "$CACHE_DURATION_MEDIUM" git rev-parse --show-toplevel
+            local sanitized_dir="${current_dir//\//_}"
+            sanitized_dir="${sanitized_dir//\./_}"
+            cache_git_operation "root_${sanitized_dir}" "$CACHE_DURATION_MEDIUM" git rev-parse --show-toplevel
         else
             git rev-parse --show-toplevel 2>/dev/null
         fi
@@ -74,7 +78,9 @@ get_git_branch() {
     if [[ "${STATUSLINE_CACHE_LOADED:-}" == "true" ]]; then
         local git_root
         git_root=$(get_git_root)
-        cache_git_operation "branch_${git_root//\//_}" "$CACHE_DURATION_SHORT" _get_git_branch_direct
+        local sanitized_root="${git_root//\//_}"
+        sanitized_root="${sanitized_root//\./_}"
+        cache_git_operation "branch_${sanitized_root}" "$CACHE_DURATION_SHORT" _get_git_branch_direct
     else
         _get_git_branch_direct
     fi
@@ -142,7 +148,9 @@ get_git_status() {
     if [[ "${STATUSLINE_CACHE_LOADED:-}" == "true" ]]; then
         local git_root
         git_root=$(get_git_root)
-        cache_git_operation "status_${git_root//\//_}" "$CACHE_DURATION_SHORT" _get_git_status_direct
+        local sanitized_root="${git_root//\//_}"
+        sanitized_root="${sanitized_root//\./_}"
+        cache_git_operation "status_${sanitized_root}" "$CACHE_DURATION_SHORT" _get_git_status_direct
     else
         _get_git_status_direct
     fi
