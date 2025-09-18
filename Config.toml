@@ -363,47 +363,47 @@ display.lines = 5
 
 # Line 1: Repository Core (atomic git components + info)
 display.line1.components = ["repo_info", "commits", "submodules", "version_info", "time_display"]
-display.line1.separator = " │ "
+display.line1.separator = " ･ "
 display.line1.show_when_empty = true
 
 # Line 2: Model + Cost Analytics (all cost components)
 display.line2.components = ["model_info", "cost_repo", "cost_monthly", "cost_weekly", "cost_daily", "cost_live"]
-display.line2.separator = " │ "
+display.line2.separator = " ･ "
 display.line2.show_when_empty = true
 
 # Line 3: Block Metrics (v2.10.0 features - no icons)
 display.line3.components = ["burn_rate", "token_usage", "cache_efficiency", "block_projection"]
-display.line3.separator = " │ "
+display.line3.separator = " ･ "
 display.line3.show_when_empty = true
 
 # Line 4: System Status & Timer
 display.line4.components = ["mcp_status", "reset_timer"]
-display.line4.separator = " │ "
+display.line4.separator = " ･ "
 display.line4.show_when_empty = true
 
 # Line 5: Islamic Prayer Times (spiritual context)
 display.line5.components = ["prayer_times"]
-display.line5.separator = " │ "
+display.line5.separator = " ･ "
 display.line5.show_when_empty = true
 
 # Line 6: Legacy Git Display (for comparison with atomic components)
 display.line6.components = []
-display.line6.separator = " │ "
+display.line6.separator = " ･ "
 display.line6.show_when_empty = false
 
 # Line 7: Legacy Cost Period (for comparison with atomic components)
 display.line7.components = []
-display.line7.separator = " │ "
+display.line7.separator = " ･ "
 display.line7.show_when_empty = false
 
 # Line 8: Available for future expansion
 display.line8.components = []
-display.line8.separator = " │ "
+display.line8.separator = " ･ "
 display.line8.show_when_empty = false
 
 # Line 9: Available for future expansion
 display.line9.components = []
-display.line9.separator = " │ "
+display.line9.separator = " ･ "
 display.line9.show_when_empty = false
 
 # === AVAILABLE COMPONENTS REFERENCE ===

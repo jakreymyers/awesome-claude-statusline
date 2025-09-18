@@ -45,24 +45,12 @@ format_directory_path() {
 # MODEL FORMATTING
 # ============================================================================
 
-# Get emoji for Claude model based on model name
+# Get emoji for Claude model - always returns robot emoji for consistency
 get_model_emoji() {
     local model_name="$1"
-    
-    case "$model_name" in
-        *"Opus"*|*"opus"*)
-            echo "$CONFIG_OPUS_EMOJI"
-            ;;
-        *"Haiku"*|*"haiku"*)
-            echo "$CONFIG_HAIKU_EMOJI"
-            ;;
-        *"Sonnet"*|*"sonnet"*)
-            echo "$CONFIG_SONNET_EMOJI"
-            ;;
-        *)
-            echo "$CONFIG_DEFAULT_MODEL_EMOJI"
-            ;;
-    esac
+
+    # Always return robot emoji for consistent component formatting
+    echo "🤖"
 }
 
 # Format model name for display
