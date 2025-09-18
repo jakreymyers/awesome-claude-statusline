@@ -196,7 +196,10 @@ get_repo_identifier() {
             # Use sanitized path with safer delimiter to prevent collisions
             # Double underscore reduces collision risk between paths like:
             # /home/user_project vs /home/user/project
-            echo "${repo_path//\//__}"
+            # Also sanitize dots to prevent arithmetic syntax errors
+            local sanitized_path="${repo_path//\//__}"
+            sanitized_path="${sanitized_path//\./_}"
+            echo "$sanitized_path"
             ;;
     esac
 }

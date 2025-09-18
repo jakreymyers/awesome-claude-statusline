@@ -252,8 +252,8 @@ format_mcp_server_list() {
 # Format Claude version
 format_claude_version() {
     local version="$1"
-    # Simplified v format without emoji
-    echo "${CONFIG_PURPLE}v${version}${CONFIG_RESET}"
+    # Add alien monster emoji with dim effect and purple text
+    echo "${CONFIG_DIM}👾${CONFIG_RESET} ${CONFIG_PURPLE}v${version}${CONFIG_RESET}"
 }
 
 # ============================================================================

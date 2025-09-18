@@ -273,9 +273,9 @@ get_commits_since() {
     fi
 }
 
-# Get commits today
+# Get commits in last 24 hours
 get_commits_today() {
-    get_commits_since "today 00:00"
+    get_commits_since "24 hours ago"
 }
 
 # Get commits this week
