@@ -280,17 +280,36 @@ get_last_commit_info() {
     if ! is_git_repository; then
         return 1
     fi
-    
+
     local commit_hash commit_date commit_message
-    
+
     commit_hash=$(git rev-parse --short HEAD 2>/dev/null)
     commit_date=$(git log -1 --format=%cd --date=relative 2>/dev/null)
     commit_message=$(git log -1 --format=%s 2>/dev/null)
-    
+
     if [[ -n "$commit_hash" ]]; then
         echo "${commit_hash} (${commit_date}): ${commit_message}"
         return 0
     else
+        return 1
+    fi
+}
+
+# Get time since last commit (for status display)
+get_time_since_last_commit() {
+    if ! is_git_repository; then
+        echo "never"
+        return 1
+    fi
+
+    local commit_date
+    commit_date=$(git log -1 --format=%cd --date=relative 2>/dev/null)
+
+    if [[ -n "$commit_date" ]]; then
+        echo "$commit_date"
+        return 0
+    else
+        echo "never"
         return 1
     fi
 }
@@ -560,7 +579,7 @@ export -f is_git_repository get_git_root is_git_root
 export -f get_git_branch is_main_branch get_git_status
 export -f has_uncommitted_changes has_untracked_files get_detailed_git_status
 export -f get_total_commit_count get_commits_since get_commits_today get_commits_this_week
-export -f get_last_commit_info has_submodules get_submodule_count get_submodule_status
+export -f get_last_commit_info get_time_since_last_commit has_submodules get_submodule_count get_submodule_status
 export -f get_detailed_submodule_info are_submodules_updated
 export -f get_remote_url get_remote_status execute_git_command get_git_config
 export -f is_bare_repository format_git_status_display get_formatted_git_branch

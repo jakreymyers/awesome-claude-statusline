@@ -12,6 +12,7 @@
 
 # Component data storage
 COMPONENT_COMMITS_COUNT=""
+COMPONENT_COMMITS_LAST_TIME=""
 
 # ============================================================================
 # COMPONENT DATA COLLECTION
@@ -20,16 +21,18 @@ COMPONENT_COMMITS_COUNT=""
 # Collect commit count data
 collect_commits_data() {
     debug_log "Collecting commits component data" "INFO"
-    
-    # Initialize default
+
+    # Initialize defaults
     COMPONENT_COMMITS_COUNT="0"
-    
-    # Get commit count if git module is loaded and we're in a git repo
+    COMPONENT_COMMITS_LAST_TIME="never"
+
+    # Get commit count and time since last commit if git module is loaded and we're in a git repo
     if is_module_loaded "git" && is_git_repository; then
         COMPONENT_COMMITS_COUNT=$(get_commits_today)
+        COMPONENT_COMMITS_LAST_TIME=$(get_time_since_last_commit)
     fi
-    
-    debug_log "commits data: count=$COMPONENT_COMMITS_COUNT" "INFO"
+
+    debug_log "commits data: count=$COMPONENT_COMMITS_COUNT, last_time=$COMPONENT_COMMITS_LAST_TIME" "INFO"
     return 0
 }
 
@@ -48,8 +51,9 @@ render_commits() {
         return 0
     fi
     
-    # Build commits display with emoji prefix and simplified format
-    local commits_display="📝 ${COMPONENT_COMMITS_COUNT}"
+    # Build commits display with emoji prefix, count, and time since last commit
+    # Always show time since last commit, regardless of today's count
+    local commits_display="📝 ${COMPONENT_COMMITS_COUNT} (${COMPONENT_COMMITS_LAST_TIME})"
 
     echo "$commits_display"
     return 0
