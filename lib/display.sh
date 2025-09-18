@@ -33,12 +33,16 @@ export DISPLAY_NEWLINE=$'\n'
 format_directory_path() {
     local current_dir="$1"
     local home_dir="${2:-$HOME}"
-    
+
+    local formatted_path
     if [[ "$current_dir" == "$home_dir"/* ]]; then
-        echo "~${current_dir#$home_dir}"
+        formatted_path="~${current_dir#$home_dir}"
     else
-        echo "$current_dir"
+        formatted_path="$current_dir"
     fi
+
+    # Add folder emoji prefix for consistent component formatting
+    echo "📁 ${formatted_path}"
 }
 
 # ============================================================================
@@ -248,7 +252,8 @@ format_mcp_server_list() {
 # Format Claude version
 format_claude_version() {
     local version="$1"
-    echo "${CONFIG_PURPLE}${CONFIG_VERSION_PREFIX}${version}${CONFIG_RESET}"
+    # Add version emoji prefix and simplified v format
+    echo "🏷️ ${CONFIG_PURPLE}v${version}${CONFIG_RESET}"
 }
 
 # ============================================================================

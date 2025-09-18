@@ -48,10 +48,9 @@ render_commits() {
         return 0
     fi
     
-    # Build commits display
-    local commits_label="${CONFIG_COMMITS_LABEL}"
-    local commits_display="${commits_label}${COMPONENT_COMMITS_COUNT}"
-    
+    # Build commits display with emoji prefix and simplified format
+    local commits_display="📝 ${COMPONENT_COMMITS_COUNT}"
+
     echo "$commits_display"
     return 0
 }
