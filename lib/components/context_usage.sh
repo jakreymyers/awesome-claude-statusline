@@ -22,7 +22,7 @@ COMPONENT_CONTEXT_USAGE_LIMIT=""
 
 # Constants
 CONTEXT_LIMIT=200000
-SYSTEM_OVERHEAD_TOKENS=15000  # Estimated tokens for system prompt and system tools
+SYSTEM_OVERHEAD_TOKENS=0  # System overhead offset (disabled - using direct token counts)
 
 # ============================================================================
 # UTILITY FUNCTIONS
