@@ -131,49 +131,64 @@ statusline.sh (main entry point)
 - **directory_info** - Current directory path with card index dividers emoji (🗂️)
   - Data: Current working directory path (shortened with ~)
   - Color: Custom #E1BB8B
+  - Format: Dimmed emoji with 2 spaces before colored path
 
-- **git_branch** - Git branch information with leaf emoji (🌿)
+- **git_branch** - Git branch information with deciduous tree emoji (🌳)
   - Data: Current git branch name in parentheses
+  - Color: Brown #7F5632 for branch name
   - Dependencies: git.sh
+  - Format: Dimmed emoji with 2 spaces before branch
 
-- **commits** - Commit activity with ballot box emoji (☑️)
+- **commits** - Commit activity with check mark emoji (✅)
   - Data: Number of commits in last 24 hours + time since last commit
+  - Color: Green #4EB650 for commit data
   - Dependencies: git.sh
+  - Format: Dimmed emoji with 2 spaces before count
 
 - **version_info** - Claude Code version with alien monster emoji (👾)
   - Data: Claude Code version (e.g., v1.0.117)
   - Dependencies: core.sh
 
-#### Model & Cost Components
+#### Model & Context Components
 - **model_info** - Claude model with robot emoji (🤖)
-  - Data: Current Claude model name
-  - Emoji: Always 🤖 regardless of model type
+  - Data: Current Claude model name (e.g., "Opus")
+  - Format: Non-dimmed emoji (always bright)
 
-- **cost_repo** - Repository-specific costs
-  - Data: Repository cost tracking
+- **context_usage** - Context window usage with brain emoji (🧠)
+  - Data: Percentage used, tokens used/limit (e.g., "47% (95k/200k)")
+  - Color: Green/Orange/Red based on usage thresholds
+  - Format: Dimmed emoji with percentage and token counts
 
-- **cost_monthly/weekly/daily** - Time-period cost tracking
-  - Data: Costs over different time periods
+#### Cost & Performance Components
+- **cost_monthly/weekly/daily** - Time-period cost tracking with money bag emoji (💰)
+  - Data: Costs over different time periods (M:$X W:$Y D:$Z format)
+  - Format: Dimmed emoji with abbreviated period labels
 
-- **cost_live** - Live block cost tracking
-  - Data: Current session/block costs
-
-- **burn_rate** - Token burn rate analysis
+- **burn_rate** - Token burn rate analysis with fire emoji (🔥)
   - Data: Tokens per minute and hourly cost projection
+  - Color: Red/orange for high burn rates
+  - Format: Dimmed emoji with rate and hourly cost
+
+- **reset_timer** - Block reset countdown with alarm clock emoji (⏰)
+  - Data: Reset time and remaining duration (e.g., "RESET at 23:00 (2h 46m left)")
+  - Format: Dimmed emoji with time and countdown
 
 #### Technical Components
-- **mcp_status** - MCP server status
-  - Data: Connected/total MCP servers
+- **mcp_status** - MCP server status with gear emoji (⚙️)
+  - Data: Connected/total servers with server names in parentheses
+  - Format: "MCP: X/Y (server1, server2, ...)"
   - Dependencies: mcp.sh
 
+Additional Available Components:
+- **cost_repo** - Repository-specific cost tracking
+- **cost_live** - Live block cost tracking
+- **cost_usage** - Detailed usage costs
 - **token_usage** - Token consumption metrics
-  - Data: Total tokens used
-
-- **cache_efficiency** - Cache performance
-  - Data: Cache hit ratio percentage
-
+- **context_usage** - Covered above in Model & Context
+- **cache_efficiency** - Cache performance metrics
 - **block_projection** - Cost projection for current block
-  - Data: Projected costs
+- **time_display** - Current time display
+- **submodules** - Git submodule status
 
 
 ### Component Interface
@@ -198,23 +213,28 @@ The system uses TOML format for configuration with dot notation:
 
 #### Display Lines Configuration
 ```toml
-# Line 1 Components and Separators
+# Display Lines Configuration
 display.line1.components = "directory_info git_branch commits version_info"
-display.line1.separator = " ･ "
+display.line1.separator = " • "
 
-# Enable/disable features
-features.show_commits = true
-features.show_version = true
-features.show_mcp_status = true
-```
+display.line2.components = "model_info context_usage mcp_status"
+display.line2.separator = " • "
 
-#### Theme Configuration
-```toml
-theme.name = "catppuccin"  # "classic", "garden", "catppuccin", "custom"
-```
+display.line3.components = "cost_monthly cost_weekly cost_daily burn_rate reset_timer"
+display.line3.separator = " • "
 
-#### Component-Specific Settings
-```toml
+# Component-specific settings
+components.mcp_status.show_server_list = true
+components.context_usage.show_tokens = true
+components.burn_rate.show_hourly_cost = true
+components.reset_timer.show_remaining = true
+
+# Theme selection
+theme.name = "jakd"  # Options: "jakd", "classic", "garden", "catppuccin", "custom"
+
+# Cache settings
+cache.enabled = true
+cache.ttl = "5m"
 
 # Timeouts
 timeouts.mcp = "10s"
@@ -230,19 +250,25 @@ timeouts.version = "10s"
 
 ### Current Emoji Mapping
 - 🗂️ **Directory Info** - Card index dividers (dim)
-- 🌿 **Git Branch** - Leaf (dim)
-- ☑️ **Commits** - Ballot box with check (dim)
+- 🌳 **Git Branch** - Deciduous tree (dim)
+- ✅ **Commits** - Check mark (dim)
 - 👾 **Version** - Alien monster (dim)
-- 🤖 **Model** - Robot (always, regardless of Claude model)
-- 🔥 **Live Costs** - Fire
+- 🤖 **Model** - Robot (NOT dimmed - always full brightness)
+- 🧠 **Context Usage** - Brain (dim)
+- ⚙️ **MCP Status** - Gear (dim)
+- 💰 **Cost Tracking** - Money bag (dim)
+- 🔥 **Burn Rate** - Fire (dim)
+- ⏰ **Reset Timer** - Alarm clock (dim)
 
-### Color Scheme (Catppuccin Theme)
+### Color Scheme (Default Theme)
 - **Directory Path**: #E1BB8B (custom warm beige)
-- **Git Branch**: Green variations
+- **Git Branch**: #7F5632 (brown)
+- **Commits**: #4EB650 (green)
 - **Version**: Purple tones
+- **Context Usage**: Dynamic (green/orange/red based on percentage)
 - **Costs**: Various colors per component
 - **Text**: Full opacity for readability
-- **Emojis**: 50% opacity for subtle visual hierarchy
+- **Emojis**: 50% opacity for subtle visual hierarchy (except 🤖)
 
 ### Separators
 - **Primary Separator**: ` ･ ` (middle dot with spaces)
