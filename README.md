@@ -88,17 +88,17 @@ Understanding what information is available helps you customize effectively:
 
 **Line 1 - Project Context**
 ```
-🗂️ ~/awesome-claude-statusline • 🌳 (main) • ✅ 15 (2m ago) • 👾 v1.0.117
+🗂️ ~/current-directory • 🌳 (git branch) • ✅ commits (time since last commit) • 👾 c/c version
 ```
 
 **Line 2 - Active Session**
 ```
-🤖 Claude • 🧠 55% (109k/200k) • ⚙️ MCP: 2 (active)
+🤖 model • 🧠 context usage % (utilized/total) • ⚙️ MCP: #/# active/total (server1, sever2..)
 ```
 
 **Line 3 - Cost & Performance**
 ```
-💰 M:$462.43 W:$151.64 D:$36.80 • 🔥 205k/min ($6.66/hr) • ⏰ RESET at 18:00
+💰 M:$ monthly W:$ weekly D:$ daily • 🔥 tokens/min ($/hr) • ⏰ RESET at <reset time>
 ```
 
 ## System Architecture
@@ -130,20 +130,17 @@ statusline.sh (main entry point)
 #### Core Components
 - **directory_info** - Current directory path with card index dividers emoji (🗂️)
   - Data: Current working directory path (shortened with ~)
-  - Color: Custom #E1BB8B
-  - Format: Dimmed emoji with 2 spaces before colored path
+  - Color: Orange #E1BB8B
 
 - **git_branch** - Git branch information with deciduous tree emoji (🌳)
   - Data: Current git branch name in parentheses
   - Color: Brown #7F5632 for branch name
-  - Dependencies: git.sh
-  - Format: Dimmed emoji with 2 spaces before branch
+  - Format: Dimmed emoji
 
 - **commits** - Commit activity with check mark emoji (✅)
   - Data: Number of commits in last 24 hours + time since last commit
   - Color: Green #4EB650 for commit data
-  - Dependencies: git.sh
-  - Format: Dimmed emoji with 2 spaces before count
+  - Format: Dimmed emoji
 
 - **version_info** - Claude Code version with alien monster emoji (👾)
   - Data: Claude Code version (e.g., v1.0.117)
