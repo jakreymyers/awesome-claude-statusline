@@ -7,6 +7,8 @@
 
 A comprehensive, modular statusline system that provides essential workflow information at a glance. Built for developers who want deep insights into their Claude Code usage with visual excellence and complete customization control.
 
+![Awesome Claude Statusline Screenshot](https://github.com/jakreymyers/awesome-claude-statusline/blob/main/assets/statusline-screenshot.png)
+
 ```
 🗂️  ~/.claude/statusline • 🌳 (main) • ✅ 15 (2m ago) • 👾 v1.0.117
 🤖 Claude • 🧠 55% (109k/200k) • ⚙️ MCP: 2 (active)
