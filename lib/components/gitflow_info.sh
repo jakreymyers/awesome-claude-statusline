@@ -94,8 +94,13 @@ render_gitflow_info() {
     # 2. Sync status (always show with dimming)
     if [[ "$show_sync" == "true" && -n "$COMPONENT_GITFLOW_SYNC" ]]; then
         case "$COMPONENT_GITFLOW_SYNC" in
+            no-remote:*)
+                # No remote tracking - show N/A (dimmed)
+                local no_remote_info="${COMPONENT_GITFLOW_SYNC#no-remote:}"
+                parts+=("${CONFIG_DIM}${no_remote_info}${CONFIG_RESET}")
+                ;;
             synced:*)
-                # Always show ↑N ↓N when synced (dimmed)
+                # Show ↑0 ↓0 when synced (dimmed)
                 local sync_info="${COMPONENT_GITFLOW_SYNC#synced:}"
                 parts+=("${CONFIG_DIM}${sync_info}${CONFIG_RESET}")
                 ;;
