@@ -36,23 +36,47 @@ A comprehensive, modular statusline system that provides essential workflow info
 
 ## Quick Start
 
+### One-Command Installation
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jakreymyers/awesome-claude-statusline/main/install.sh | bash
+```
+
+That's it! The installer will:
+- ✅ Install to `~/.claude/statusline/` (global for all your projects)
+- ✅ Update your Claude Code config automatically
+- ✅ Set proper permissions
+- ✅ Backup your existing config
+
+**Restart Claude Code** and enjoy your new statusline!
+
 ### Prerequisites
 - **Claude Code CLI** installed and configured
 - **Bash 4.0+** (auto-detected and upgraded on macOS)
-- **jq** for JSON parsing
+- **jq** recommended for config updates (optional but helpful)
 
-### Installation & First Run
+### Manual Installation (Alternative)
+
+If you prefer to install manually or customize the installation:
+
 ```bash
-# Clone and test
-git clone https://github.com/jakreymyers/awesome-claude-statusline.git
-cd awesome-claude-statusline
-chmod +x statusline.sh
+# Clone the repository
+git clone https://github.com/jakreymyers/awesome-claude-statusline.git ~/.claude/statusline
 
-# See it in action
-echo '{"workspace":{"current_dir":"'$(pwd)'"}}' | ./statusline.sh
+# Run setup
+cd ~/.claude/statusline
+chmod +x statusline.sh install.sh
+./install.sh
 ```
 
-You'll immediately see your current directory, git status, version info, and more - all beautifully formatted with the default **Jak'd theme**.
+### Test It Out
+
+```bash
+# See your statusline in action
+echo '{"workspace":{"current_dir":"'$(pwd)'"}}' | ~/.claude/statusline/statusline.sh
+```
+
+You'll immediately see your current directory, Git Flow branch with colored file changes, cost tracking, and more - all beautifully formatted with the default **Jak'd theme**.
 
 ## Key Features
 
