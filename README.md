@@ -112,11 +112,11 @@ Understanding what information is available helps you customize effectively:
 
 **Line 1 - Project Context**
 ```
-🗂️ ~/current-directory ･ 🌿 (git branch) ･ ●# ✚# ✖# ･ ✅ commits (time since last commit)
+🗂️ ~/current-directory ･ 🌿 (git branch) ･ ↑0 ↓0 ･ ●# ✚# ✖# ･ ✅ commits (time since last commit)
 ```
 - Dynamic Git Flow icons (🌿 feature, 🚀 release, 🔥 hotfix, 🏠 main, 🔀 develop)
-- Colored file changes: yellow ● modified, green ✚ added, red ✖ deleted
-- Sync status indicators when ahead/behind remote (↑↓)
+- Sync status: ↑N (commits ahead of remote), ↓N (commits behind remote) - always visible, dimmed
+- Colored file changes: yellow ● modified, green ✚ added, red ✖ deleted - all dimmed
 
 **Line 2 - Active Session**
 ```
@@ -160,10 +160,10 @@ statusline.sh (main entry point)
   - Color: Orange #E1BB8B
 
 - **gitflow_info** - Enhanced Git Flow information with dynamic branch type icons
-  - Data: Branch name, file changes, sync status
-  - Icons: 🌿 feature, 🚀 release, 🔥 hotfix, 🏠 main, 🔀 develop
+  - Data: Branch name, sync status, file changes
+  - Icons: 🌿 feature, 🚀 release, 🔥 hotfix, 🏠 main, 🔀 develop (dimmed)
+  - Sync status: ↑N ↓N showing commits ahead/behind remote (always visible, dimmed)
   - File changes: Dimmed yellow ● modified, green ✚ added, red ✖ deleted (always shows counts)
-  - Sync status: ↑ ahead, ↓ behind (hidden when synced)
   - Color: Brown #7F5632 for branch name
   - Format: All icons and indicators properly dimmed
 
