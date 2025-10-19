@@ -10,8 +10,8 @@ A comprehensive, modular statusline system that provides essential workflow info
 ![Awesome Claude Statusline Screenshot](https://github.com/jakreymyers/awesome-claude-statusline/blob/main/assets/statusline-screenshot.png)
 
 ```
-🗂️  current directory • 🌳 (git branch) • ✅ # of commits (time since commit) • 👾 c/c version
-🤖 model • 🧠 context usage % (utilized/total) • ⚙️ MCP: #/# connected/total (status)
+🗂️  current directory • 🌳 (git branch) • ● # (changed) ✚ # (added) ✖ # (deleted) • ✅ # of commits (time since commit)
+👾 c/c version • 🤖 model • 🧠 context usage % (utilized/total) • ⚙️ MCP: #/# connected/total (status)
 💰 M:$ monthly W:$ weekly D:$ daily • 🔥 tokens /min ($/hr) • ⏰ RESET at <reset time>
 ```
 
