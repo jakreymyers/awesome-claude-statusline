@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.11.0] - 2025-10-19
+
+### Added
+- **Git Flow Enhanced Display**: New `gitflow_info` component with comprehensive Git Flow support
+  - Branch type detection with dynamic icons (🌿 feature, 🚀 release, 🔥 hotfix, 🏠 main, 🔀 develop)
+  - Sync status indicators (↑ ahead, ↓ behind of remote)
+  - File change counts (● modified, ✚ added, ✖ deleted, ? untracked)
+  - Merge target display (🎯 → shows where branch will merge)
+- New Git Flow helper functions in `lib/git.sh`:
+  - `get_git_flow_branch_type()` - Detects branch type and returns appropriate icon
+  - `get_git_flow_merge_target()` - Determines merge destination based on Git Flow conventions
+  - `get_git_sync_status()` - Compact ahead/behind sync status
+  - `get_git_file_changes()` - File change counts in statusline format
+
+### Changed
+- Replaced `git_branch` component with enhanced `gitflow_info` component in default layout
+- All Git Flow icons are properly dimmed for visual consistency
+- Branch names maintain brown color (#7F5632) for consistency
+- Git Flow information properly separated with ･ delimiters
+
 ## [2.10.1] - 2025-10-19
 
 ### Added

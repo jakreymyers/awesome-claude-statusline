@@ -508,6 +508,134 @@ is_bare_repository() {
 }
 
 # ============================================================================
+# GIT FLOW SUPPORT
+# ============================================================================
+
+# Detect Git Flow branch type and return appropriate icon and type
+get_git_flow_branch_type() {
+    if ! is_git_repository; then
+        echo "unknown:📁"
+        return 1
+    fi
+
+    local branch
+    branch=$(get_git_branch)
+
+    if [[ -z "$branch" ]]; then
+        echo "unknown:📁"
+        return 1
+    fi
+
+    # Detect branch type based on Git Flow naming conventions
+    if [[ "$branch" == "main" ]]; then
+        echo "main:🏠"
+    elif [[ "$branch" == "develop" ]]; then
+        echo "develop:🔀"
+    elif [[ "$branch" == feature/* ]]; then
+        echo "feature:🌿"
+    elif [[ "$branch" == release/* ]]; then
+        echo "release:🚀"
+    elif [[ "$branch" == hotfix/* ]]; then
+        echo "hotfix:🔥"
+    else
+        echo "other:📁"
+    fi
+}
+
+# Get the merge target for the current branch based on Git Flow conventions
+get_git_flow_merge_target() {
+    if ! is_git_repository; then
+        return 1
+    fi
+
+    local branch
+    branch=$(get_git_branch)
+
+    if [[ -z "$branch" ]]; then
+        return 1
+    fi
+
+    # Determine merge target based on Git Flow conventions
+    if [[ "$branch" == "main" ]]; then
+        echo "main"  # Main doesn't merge anywhere
+    elif [[ "$branch" == "develop" ]]; then
+        echo "main"  # Develop merges to main during releases
+    elif [[ "$branch" == feature/* ]]; then
+        echo "develop"  # Features merge to develop
+    elif [[ "$branch" == release/* ]]; then
+        echo "main+develop"  # Releases merge to both main and develop
+    elif [[ "$branch" == hotfix/* ]]; then
+        echo "main+develop"  # Hotfixes merge to both main and develop
+    else
+        # Try to detect upstream branch
+        local upstream
+        upstream=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null | sed 's/origin\///')
+        if [[ -n "$upstream" ]]; then
+            echo "$upstream"
+        else
+            echo "develop"  # Default to develop
+        fi
+    fi
+}
+
+# Get ahead/behind sync status in a compact format
+get_git_sync_status() {
+    if ! is_git_repository; then
+        return 1
+    fi
+
+    local branch
+    branch=$(get_git_branch)
+
+    if [[ -z "$branch" ]]; then
+        return 1
+    fi
+
+    # Check if branch has an upstream
+    if ! git rev-parse --abbrev-ref @{u} &>/dev/null; then
+        echo "no-upstream"
+        return 0
+    fi
+
+    local ahead behind
+    ahead=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo "0")
+    behind=$(git rev-list --count HEAD..@{u} 2>/dev/null || echo "0")
+
+    if [[ "$ahead" -gt 0 && "$behind" -gt 0 ]]; then
+        echo "diverged:↑${ahead}↓${behind}"
+    elif [[ "$ahead" -gt 0 ]]; then
+        echo "ahead:↑${ahead}"
+    elif [[ "$behind" -gt 0 ]]; then
+        echo "behind:↓${behind}"
+    else
+        echo "synced"
+    fi
+}
+
+# Get file change counts in a compact format for statusline with colors
+get_git_file_changes() {
+    if ! is_git_repository; then
+        return 1
+    fi
+
+    local modified added deleted
+
+    # Count file changes
+    modified=$(git diff --name-only --diff-filter=M 2>/dev/null | wc -l | tr -d ' ')
+    added=$(git diff --cached --name-only --diff-filter=A 2>/dev/null | wc -l | tr -d ' ')
+    deleted=$(git diff --name-only --diff-filter=D 2>/dev/null | wc -l | tr -d ' ')
+
+    # Colors: all dimmed - yellow for modified, green for added, red for deleted
+    local dim_yellow="${CONFIG_DIM}${CONFIG_WARNING_COLOR:-$(printf '\033[38;2;241;196;15m')}"
+    local dim_green="${CONFIG_DIM}${CONFIG_SUCCESS_COLOR:-$(printf '\033[38;2;78;182;80m')}"
+    local dim_red="${CONFIG_DIM}${CONFIG_ERROR_COLOR:-$(printf '\033[38;2;231;76;60m')}"
+    local reset="${CONFIG_RESET:-$(printf '\033[0m')}"
+
+    # Always show all three indicators with counts and colors (all dimmed)
+    echo "${dim_yellow}●${modified}${reset} ${dim_green}✚${added}${reset} ${dim_red}✖${deleted}${reset}"
+}
+
+# ============================================================================
 # DISPLAY FORMATTING
 # ============================================================================
 
