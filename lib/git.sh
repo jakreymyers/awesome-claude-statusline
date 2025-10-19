@@ -625,14 +625,14 @@ get_git_file_changes() {
     added=$(git diff --cached --name-only --diff-filter=A 2>/dev/null | wc -l | tr -d ' ')
     deleted=$(git diff --name-only --diff-filter=D 2>/dev/null | wc -l | tr -d ' ')
 
-    # Colors: dimmed yellow for modified, green for added, red for deleted
+    # Colors: all dimmed - yellow for modified, green for added, red for deleted
     local dim_yellow="${CONFIG_DIM}${CONFIG_WARNING_COLOR:-$(printf '\033[38;2;241;196;15m')}"
-    local green="${CONFIG_SUCCESS_COLOR:-$(printf '\033[38;2;78;182;80m')}"
-    local red="${CONFIG_ERROR_COLOR:-$(printf '\033[38;2;231;76;60m')}"
+    local dim_green="${CONFIG_DIM}${CONFIG_SUCCESS_COLOR:-$(printf '\033[38;2;78;182;80m')}"
+    local dim_red="${CONFIG_DIM}${CONFIG_ERROR_COLOR:-$(printf '\033[38;2;231;76;60m')}"
     local reset="${CONFIG_RESET:-$(printf '\033[0m')}"
 
-    # Always show all three indicators with counts and colors
-    echo "${dim_yellow}●${modified}${reset} ${green}✚${added}${reset} ${red}✖${deleted}${reset}"
+    # Always show all three indicators with counts and colors (all dimmed)
+    echo "${dim_yellow}●${modified}${reset} ${dim_green}✚${added}${reset} ${dim_red}✖${deleted}${reset}"
 }
 
 # ============================================================================
