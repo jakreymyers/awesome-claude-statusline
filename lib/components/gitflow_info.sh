@@ -94,11 +94,8 @@ render_gitflow_info() {
     # 2. Sync status (always show with dimming)
     if [[ "$show_sync" == "true" && -n "$COMPONENT_GITFLOW_SYNC" ]]; then
         case "$COMPONENT_GITFLOW_SYNC" in
-            "no-upstream")
-                # Don't show anything if no upstream
-                ;;
             synced:*)
-                # Always show ↑0 ↓0 when synced (dimmed)
+                # Always show ↑N ↓N when synced (dimmed)
                 local sync_info="${COMPONENT_GITFLOW_SYNC#synced:}"
                 parts+=("${CONFIG_DIM}${sync_info}${CONFIG_RESET}")
                 ;;

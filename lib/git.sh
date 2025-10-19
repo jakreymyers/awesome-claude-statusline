@@ -593,7 +593,8 @@ get_git_sync_status() {
 
     # Check if branch has an upstream
     if ! git rev-parse --abbrev-ref @{u} &>/dev/null; then
-        echo "no-upstream"
+        # No upstream - show as synced with 0 0
+        echo "synced:↑0 ↓0"
         return 0
     fi
 
