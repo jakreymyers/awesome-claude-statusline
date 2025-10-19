@@ -91,23 +91,21 @@ render_gitflow_info() {
         parts+=("${branch_color}(${COMPONENT_GITFLOW_BRANCH})${CONFIG_RESET}")
     fi
 
-    # 2. Sync status (if not synced and not no-upstream)
+    # 2. Sync status (always show with dimming)
     if [[ "$show_sync" == "true" && -n "$COMPONENT_GITFLOW_SYNC" ]]; then
         case "$COMPONENT_GITFLOW_SYNC" in
-            "synced"|"no-upstream")
-                # Don't show anything if synced or no upstream
+            "no-upstream")
+                # Don't show anything if no upstream
                 ;;
-            ahead:*)
-                local ahead_count="${COMPONENT_GITFLOW_SYNC#ahead:}"
-                parts+=("${CONFIG_INFO_COLOR}${ahead_count}${CONFIG_RESET}")
-                ;;
-            behind:*)
-                local behind_count="${COMPONENT_GITFLOW_SYNC#behind:}"
-                parts+=("${CONFIG_WARNING_COLOR}${behind_count}${CONFIG_RESET}")
+            synced:*)
+                # Always show ↑0 ↓0 when synced (dimmed)
+                local sync_info="${COMPONENT_GITFLOW_SYNC#synced:}"
+                parts+=("${CONFIG_DIM}${sync_info}${CONFIG_RESET}")
                 ;;
             diverged:*)
+                # Show diverged status (dimmed)
                 local diverged_info="${COMPONENT_GITFLOW_SYNC#diverged:}"
-                parts+=("${CONFIG_ERROR_COLOR}${diverged_info}${CONFIG_RESET}")
+                parts+=("${CONFIG_DIM}${diverged_info}${CONFIG_RESET}")
                 ;;
         esac
     fi
