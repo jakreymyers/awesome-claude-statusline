@@ -88,12 +88,15 @@ Understanding what information is available helps you customize effectively:
 
 **Line 1 - Project Context**
 ```
-🗂️ ~/current-directory • 🌳 (git branch) • ✅ commits (time since last commit) • 👾 c/c version
+🗂️ ~/current-directory ･ 🌿 (git branch) ･ ●# ✚# ✖# ･ ✅ commits (time since last commit)
 ```
+- Dynamic Git Flow icons (🌿 feature, 🚀 release, 🔥 hotfix, 🏠 main, 🔀 develop)
+- Colored file changes: yellow ● modified, green ✚ added, red ✖ deleted
+- Sync status indicators when ahead/behind remote (↑↓)
 
 **Line 2 - Active Session**
 ```
-🤖 model • 🧠 context usage % (utilized/total) • ⚙️ MCP: #/# active/total (server1, sever2..)
+👾 c/c version ･ 🤖 model ･ 🧠 context usage % (utilized/total) ･ ⚙️ MCP: #/# active/total
 ```
 
 **Line 3 - Cost & Performance**
@@ -115,7 +118,7 @@ statusline.sh (main entry point)
 ├── lib/cost.sh (cost tracking)
 └── lib/components/ (individual components)
     ├── directory_info.sh
-    ├── git_branch.sh
+    ├── gitflow_info.sh
     ├── commits.sh
     ├── version_info.sh
     ├── model_info.sh
@@ -132,10 +135,13 @@ statusline.sh (main entry point)
   - Data: Current working directory path (shortened with ~)
   - Color: Orange #E1BB8B
 
-- **git_branch** - Git branch information with deciduous tree emoji (🌳)
-  - Data: Current git branch name in parentheses
+- **gitflow_info** - Enhanced Git Flow information with dynamic branch type icons
+  - Data: Branch name, file changes, sync status
+  - Icons: 🌿 feature, 🚀 release, 🔥 hotfix, 🏠 main, 🔀 develop
+  - File changes: Dimmed yellow ● modified, green ✚ added, red ✖ deleted (always shows counts)
+  - Sync status: ↑ ahead, ↓ behind (hidden when synced)
   - Color: Brown #7F5632 for branch name
-  - Format: Dimmed emoji
+  - Format: All icons and indicators properly dimmed
 
 - **commits** - Commit activity with check mark emoji (✅)
   - Data: Number of commits in last 24 hours + time since last commit
@@ -211,10 +217,10 @@ The system uses TOML format for configuration with dot notation:
 #### Display Lines Configuration
 ```toml
 # Display Lines Configuration
-display.line1.components = "directory_info git_branch commits version_info"
-display.line1.separator = " • "
+display.line1.components = "directory_info gitflow_info commits"
+display.line1.separator = " ･ "
 
-display.line2.components = "model_info context_usage mcp_status"
+display.line2.components = "version_info model_info context_usage mcp_status"
 display.line2.separator = " • "
 
 display.line3.components = "cost_monthly cost_weekly cost_daily burn_rate reset_timer"
@@ -293,7 +299,7 @@ timeouts.version = "10s"
 ### Component Dependencies
 ```
 directory_info.sh → display.sh
-git_branch.sh → git.sh, display.sh
+gitflow_info.sh → git.sh, display.sh (uses Git Flow helper functions)
 commits.sh → git.sh, display.sh
 version_info.sh → core.sh
 model_info.sh → display.sh
@@ -431,6 +437,8 @@ render_component
 source lib/git.sh
 get_commits_today
 get_git_branch
+get_git_flow_branch_type
+get_git_file_changes
 
 # Verify cache operations
 source lib/cache.sh
