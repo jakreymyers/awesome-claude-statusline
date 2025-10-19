@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.12.0] - 2025-10-19
+
+### Changed
+- **Sync Status Always Visible**: Git sync status indicators (↑N ↓N) now remain visible at all times, providing consistent feedback about branch sync state
+  - Previously: Sync status would disappear when synced or when no upstream tracking existed
+  - Now: Always displays sync indicators, dimmed for visual consistency with file change indicators
+  - Improved user experience with persistent sync state visibility
+
+### Added
+- **N/A Display for No-Remote Branches**: Branches without remote tracking now display "N/A" instead of "↑0 ↓0"
+  - Clear differentiation between "synced with remote" (↑0 ↓0) and "no remote tracking" (N/A)
+  - Helps developers quickly identify local-only branches
+  - Consistent with Git Flow workflow patterns
+
+### Fixed
+- **Sync Status Display Logic**: Resolved issue where sync status would not appear for branches with no upstream tracking
+  - Fixed conditional logic to always show sync status regardless of remote state
+  - Ensures sync indicators match the visual consistency of file change indicators
+
+### Documentation
+- **Updated README**: Comprehensive documentation updates for sync status behavior
+  - Line 1 example updated to show always-visible dimmed sync status
+  - gitflow_info component documentation clarified
+  - Added explanations for N/A vs ↑0 ↓0 display states
+
 ## [2.11.0] - 2025-10-19
 
 ### Added
@@ -66,7 +91,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 For changes prior to 2.9.0, please refer to the git commit history.
 
-[Unreleased]: https://github.com/jakreymyers/awesome-claude-statusline/compare/v2.10.1...HEAD
+[Unreleased]: https://github.com/jakreymyers/awesome-claude-statusline/compare/v2.12.0...HEAD
+[2.12.0]: https://github.com/jakreymyers/awesome-claude-statusline/compare/v2.11.0...v2.12.0
+[2.11.0]: https://github.com/jakreymyers/awesome-claude-statusline/compare/v2.10.1...v2.11.0
 [2.10.1]: https://github.com/jakreymyers/awesome-claude-statusline/compare/v2.10.0...v2.10.1
 [2.10.0]: https://github.com/jakreymyers/awesome-claude-statusline/compare/v2.9.0...v2.10.0
 [2.9.0]: https://github.com/jakreymyers/awesome-claude-statusline/releases/tag/v2.9.0
