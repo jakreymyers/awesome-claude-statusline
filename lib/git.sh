@@ -593,7 +593,8 @@ get_git_sync_status() {
 
     # Check if branch has an upstream
     if ! git rev-parse --abbrev-ref @{u} &>/dev/null; then
-        echo "no-upstream"
+        # No upstream - show N/A
+        echo "no-remote:N/A"
         return 0
     fi
 
@@ -601,14 +602,11 @@ get_git_sync_status() {
     ahead=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo "0")
     behind=$(git rev-list --count HEAD..@{u} 2>/dev/null || echo "0")
 
+    # Always show both indicators
     if [[ "$ahead" -gt 0 && "$behind" -gt 0 ]]; then
-        echo "diverged:↑${ahead}↓${behind}"
-    elif [[ "$ahead" -gt 0 ]]; then
-        echo "ahead:↑${ahead}"
-    elif [[ "$behind" -gt 0 ]]; then
-        echo "behind:↓${behind}"
+        echo "diverged:↑${ahead} ↓${behind}"
     else
-        echo "synced"
+        echo "synced:↑${ahead} ↓${behind}"
     fi
 }
 

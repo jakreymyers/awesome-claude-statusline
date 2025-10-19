@@ -36,23 +36,47 @@ A comprehensive, modular statusline system that provides essential workflow info
 
 ## Quick Start
 
+### One-Command Installation
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jakreymyers/awesome-claude-statusline/main/install.sh | bash
+```
+
+That's it! The installer will:
+- ✅ Install to `~/.claude/statusline/` (global for all your projects)
+- ✅ Update your Claude Code config automatically
+- ✅ Set proper permissions
+- ✅ Backup your existing config
+
+**Restart Claude Code** and enjoy your new statusline!
+
 ### Prerequisites
 - **Claude Code CLI** installed and configured
 - **Bash 4.0+** (auto-detected and upgraded on macOS)
-- **jq** for JSON parsing
+- **jq** recommended for config updates (optional but helpful)
 
-### Installation & First Run
+### Manual Installation (Alternative)
+
+If you prefer to install manually or customize the installation:
+
 ```bash
-# Clone and test
-git clone https://github.com/jakreymyers/awesome-claude-statusline.git
-cd awesome-claude-statusline
-chmod +x statusline.sh
+# Clone the repository
+git clone https://github.com/jakreymyers/awesome-claude-statusline.git ~/.claude/statusline
 
-# See it in action
-echo '{"workspace":{"current_dir":"'$(pwd)'"}}' | ./statusline.sh
+# Run setup
+cd ~/.claude/statusline
+chmod +x statusline.sh install.sh
+./install.sh
 ```
 
-You'll immediately see your current directory, git status, version info, and more - all beautifully formatted with the default **Jak'd theme**.
+### Test It Out
+
+```bash
+# See your statusline in action
+echo '{"workspace":{"current_dir":"'$(pwd)'"}}' | ~/.claude/statusline/statusline.sh
+```
+
+You'll immediately see your current directory, Git Flow branch with colored file changes, cost tracking, and more - all beautifully formatted with the default **Jak'd theme**.
 
 ## Key Features
 
@@ -88,12 +112,15 @@ Understanding what information is available helps you customize effectively:
 
 **Line 1 - Project Context**
 ```
-🗂️ ~/current-directory • 🌳 (git branch) • ✅ commits (time since last commit) • 👾 c/c version
+🗂️ ~/current-directory ･ 🌿 (git branch) ･ ↑0 ↓0 ･ ●# ✚# ✖# ･ ✅ commits (time since last commit)
 ```
+- Dynamic Git Flow icons (🌿 feature, 🚀 release, 🔥 hotfix, 🏠 main, 🔀 develop)
+- Sync status: ↑N (commits ahead of remote), ↓N (commits behind remote) - always visible, dimmed
+- Colored file changes: yellow ● modified, green ✚ added, red ✖ deleted - all dimmed
 
 **Line 2 - Active Session**
 ```
-🤖 model • 🧠 context usage % (utilized/total) • ⚙️ MCP: #/# active/total (server1, sever2..)
+👾 c/c version ･ 🤖 model ･ 🧠 context usage % (utilized/total) ･ ⚙️ MCP: #/# active/total
 ```
 
 **Line 3 - Cost & Performance**
@@ -115,7 +142,7 @@ statusline.sh (main entry point)
 ├── lib/cost.sh (cost tracking)
 └── lib/components/ (individual components)
     ├── directory_info.sh
-    ├── git_branch.sh
+    ├── gitflow_info.sh
     ├── commits.sh
     ├── version_info.sh
     ├── model_info.sh
@@ -132,10 +159,13 @@ statusline.sh (main entry point)
   - Data: Current working directory path (shortened with ~)
   - Color: Orange #E1BB8B
 
-- **git_branch** - Git branch information with deciduous tree emoji (🌳)
-  - Data: Current git branch name in parentheses
+- **gitflow_info** - Enhanced Git Flow information with dynamic branch type icons
+  - Data: Branch name, sync status, file changes
+  - Icons: 🌿 feature, 🚀 release, 🔥 hotfix, 🏠 main, 🔀 develop (dimmed)
+  - Sync status: ↑N ↓N showing commits ahead/behind remote (always visible, dimmed)
+  - File changes: Dimmed yellow ● modified, green ✚ added, red ✖ deleted (always shows counts)
   - Color: Brown #7F5632 for branch name
-  - Format: Dimmed emoji
+  - Format: All icons and indicators properly dimmed
 
 - **commits** - Commit activity with check mark emoji (✅)
   - Data: Number of commits in last 24 hours + time since last commit
@@ -211,10 +241,10 @@ The system uses TOML format for configuration with dot notation:
 #### Display Lines Configuration
 ```toml
 # Display Lines Configuration
-display.line1.components = "directory_info git_branch commits version_info"
-display.line1.separator = " • "
+display.line1.components = "directory_info gitflow_info commits"
+display.line1.separator = " ･ "
 
-display.line2.components = "model_info context_usage mcp_status"
+display.line2.components = "version_info model_info context_usage mcp_status"
 display.line2.separator = " • "
 
 display.line3.components = "cost_monthly cost_weekly cost_daily burn_rate reset_timer"
@@ -293,7 +323,7 @@ timeouts.version = "10s"
 ### Component Dependencies
 ```
 directory_info.sh → display.sh
-git_branch.sh → git.sh, display.sh
+gitflow_info.sh → git.sh, display.sh (uses Git Flow helper functions)
 commits.sh → git.sh, display.sh
 version_info.sh → core.sh
 model_info.sh → display.sh
@@ -431,6 +461,8 @@ render_component
 source lib/git.sh
 get_commits_today
 get_git_branch
+get_git_flow_branch_type
+get_git_file_changes
 
 # Verify cache operations
 source lib/cache.sh
