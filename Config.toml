@@ -85,12 +85,12 @@ timeouts.ccusage = "10s"
 display.lines = 5
 
 # Line 1: Repository Core (separated directory and git components)
-display.line1.components = ["directory_info", "git_branch", "commits", "version_info"]
+display.line1.components = ["directory_info", "gitflow_info", "commits"]
 display.line1.separator = " ･ "
 display.line1.show_when_empty = true
 
-# Line 2: Model, Context Usage, and MCP Status
-display.line2.components = ["model_info", "context_usage", "mcp_status"]
+# Line 2: Version, Model, Context Usage, and MCP Status
+display.line2.components = ["version_info", "model_info", "context_usage", "mcp_status"]
 display.line2.separator = " ･ "
 display.line2.show_when_empty = true
 
