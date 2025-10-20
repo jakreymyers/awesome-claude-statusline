@@ -68,8 +68,9 @@ collect_gitflow_info_data() {
 
 # Render Git Flow information display
 render_gitflow_info() {
-    # Return empty if not in a git repository
+    # If not in a git repository, show a dimmed indicator
     if [[ -z "$COMPONENT_GITFLOW_BRANCH" ]]; then
+        echo "${CONFIG_DIM}📁 (not a git repo)${CONFIG_RESET}"
         return 0
     fi
 
